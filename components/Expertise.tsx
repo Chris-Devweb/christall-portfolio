@@ -1,0 +1,117 @@
+"use client";
+
+import Image from "next/image";
+import { LayoutGrid, PenTool, FileText, Monitor } from "lucide-react";
+
+export default function Expertise() {
+  const services = [
+    {
+      num: "01",
+      title: "UI/UX Design",
+      icon: LayoutGrid,
+      desc: "Interfaces intuitives et expériences fluides, fondées sur la recherche utilisateur et le prototypage rigoureux.",
+      result: "RÉSULTAT: PRODUITS UTILISABLES, CONVERSION AMÉLIORÉE",
+    },
+    {
+      num: "02",
+      title: "Identité visuelle",
+      icon: PenTool,
+      desc: "Logotypes singuliers, palettes chromatiques raffinées et univers de marque durables.",
+      result: "RÉSULTAT: RECONNAISSANCE IMMÉDIATE, COHÉRENCE PARTOUT",
+    },
+    {
+      num: "03",
+      title: "Design graphique",
+      icon: FileText,
+      desc: "Direction artistique d'imprimés, affiches, mises en page éditoriales et supports physiques d'exception.",
+      result: "RÉSULTAT: PRÉSENCE FORTE, QUALITÉ D'IMPRESSION",
+    },
+    {
+      num: "04",
+      title: "Supports digitaux",
+      icon: Monitor,
+      desc: "Déclinaison de votre univers sur le web, bannières haut de gamme et contenus sociaux engageants.",
+      result: "RÉSULTAT: COHÉRENCE MULTI-CANAL, ENGAGEMENT ACCRU",
+    },
+  ];
+
+  return (
+    <section
+      id="expertise"
+      className="relative py-24 sm:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
+    >
+      {/* Decorative Losange on Left Side */}
+      <div className="hidden xl:block absolute -left-10 top-1/3 w-48 h-48 pointer-events-none select-none opacity-40 animate-float">
+        <Image
+          src="/losange.png"
+          alt="Décoration Losange"
+          width={190}
+          height={190}
+          className="object-contain"
+        />
+      </div>
+
+      <div className="w-full max-w-5xl mx-auto">
+        {/* Section Tag */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#3f519f]">
+            EXPERTISE
+          </span>
+        </div>
+
+        {/* Title */}
+        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
+          Domaines d'intervention
+        </h2>
+
+        {/* Subtitle */}
+        <p className="text-slate-500 text-base sm:text-lg mb-14 max-w-2xl">
+          Une offre de design holistique pour donner à votre projet la structure et l'éclat qu'il mérite.
+        </p>
+
+        {/* 4 Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          {services.map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <div
+                key={item.num}
+                className="group relative p-8 sm:p-9 rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Card Top: Icon & Number */}
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="w-12 h-12 rounded-2xl bg-[#f0f4ff] flex items-center justify-center text-[#3f519f] group-hover:bg-[#3f519f] group-hover:text-white transition-all duration-300 shadow-xs">
+                      <IconComponent size={22} />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-400 font-mono tracking-wider">
+                      {item.num}
+                    </span>
+                  </div>
+
+                  {/* Card Title */}
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3 font-heading group-hover:text-[#3f519f] transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {/* Card Description */}
+                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+                    {item.desc}
+                  </p>
+                </div>
+
+                {/* Card Result Badge */}
+                <div className="pt-4 border-t border-slate-100">
+                  <span className="text-[11px] font-bold tracking-wider text-[#3f519f] uppercase">
+                    {item.result}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
