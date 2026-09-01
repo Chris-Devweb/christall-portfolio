@@ -108,19 +108,8 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
   return (
     <section
       id="portfolio"
-      className="relative py-24 sm:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
+      className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
     >
-      {/* Decorative Losange on Right Side */}
-      <div className="hidden xl:block absolute -right-8 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none select-none opacity-35 animate-float-slow">
-        <Image
-          src="/losange.png"
-          alt="Décoration Losange"
-          width={190}
-          height={190}
-          className="object-contain"
-        />
-      </div>
-
       <div className="w-full max-w-5xl mx-auto">
         {/* Section Header */}
         <div className="flex items-center gap-2 mb-4">
@@ -131,24 +120,24 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
         </div>
 
         {/* Title */}
-        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
           Travaux sélectionnés
         </h2>
 
         {/* Subtitle */}
-        <p className="text-slate-500 text-base sm:text-lg mb-14 max-w-2xl">
+        <p className="text-slate-500 text-base sm:text-lg mb-10 sm:mb-14 max-w-2xl">
           Une sélection de projets récents alliant rigueur esthétique et impact stratégique.
         </p>
 
-        {/* Project Cards List */}
-        <div className="flex flex-col gap-6 sm:gap-8">
+        {/* Project Cards */}
+        <div className="flex flex-col gap-5 sm:gap-8">
           {projectsData.map((project) => (
             <div
               key={project.id}
-              className="group relative p-6 sm:p-8 rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center"
+              className="group relative p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col md:grid md:grid-cols-12 gap-5 sm:gap-8 items-center"
             >
-              {/* Left Column: Project Image Thumbnail */}
-              <div className="md:col-span-5 relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/80 shadow-xs">
+              {/* Project Image */}
+              <div className="w-full md:col-span-5 relative aspect-[16/10] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/80">
                 <Image
                   src={project.image}
                   alt={project.title}
@@ -158,11 +147,11 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
                 />
               </div>
 
-              {/* Right Column: Project Details */}
-              <div className="md:col-span-7 flex flex-col justify-between h-full">
+              {/* Project Details */}
+              <div className="w-full md:col-span-7 flex flex-col justify-between">
                 <div>
-                  {/* Top Bar: Title & Category */}
-                  <div className="flex items-start justify-between gap-4 mb-3">
+                  {/* Title & Category */}
+                  <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
                     <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading group-hover:text-[#3f519f] transition-colors">
                       {project.title}
                     </h3>
@@ -172,16 +161,16 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
                   </div>
 
                   {/* Description */}
-                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
                     {project.shortDesc}
                   </p>
                 </div>
 
-                {/* Bottom Bar: CTA Button & Year */}
+                {/* CTA */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <button
                     onClick={() => setSelectedProject(project)}
-                    className="px-5 py-2.5 rounded-[10px] bg-[#3f519f] hover:bg-[#34468f] text-white font-medium text-xs tracking-wider transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-95 group/btn"
+                    className="px-4 sm:px-5 py-2.5 rounded-[10px] bg-[#3f519f] hover:bg-[#34468f] text-white font-medium text-xs tracking-wider transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-95 group/btn"
                   >
                     <span>VOIR LE PROJET</span>
                     <ArrowUpRight

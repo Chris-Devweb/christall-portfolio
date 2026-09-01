@@ -38,9 +38,9 @@ export default function Expertise() {
   return (
     <section
       id="expertise"
-      className="relative py-24 sm:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
+      className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
     >
-      {/* Decorative Losange on Left Side */}
+      {/* Decorative Losange — only on very wide screens */}
       <div className="hidden xl:block absolute -left-10 top-1/3 w-48 h-48 pointer-events-none select-none opacity-40 animate-float">
         <Image
           src="/losange.png"
@@ -61,29 +61,29 @@ export default function Expertise() {
         </div>
 
         {/* Title */}
-        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
           Domaines d'intervention
         </h2>
 
         {/* Subtitle */}
-        <p className="text-slate-500 text-base sm:text-lg mb-14 max-w-2xl">
+        <p className="text-slate-500 text-base sm:text-lg mb-10 sm:mb-14 max-w-2xl">
           Une offre de design holistique pour donner à votre projet la structure et l'éclat qu'il mérite.
         </p>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+        {/* 4 Cards — 1 col on mobile, 2 on md+ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {services.map((item) => {
             const IconComponent = item.icon;
             return (
               <div
                 key={item.num}
-                className="group relative p-8 sm:p-9 rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col justify-between"
+                className="group relative p-6 sm:p-8 lg:p-9 rounded-2xl sm:rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   {/* Card Top: Icon & Number */}
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-[#f0f4ff] flex items-center justify-center text-[#3f519f] group-hover:bg-[#3f519f] group-hover:text-white transition-all duration-300 shadow-xs">
-                      <IconComponent size={22} />
+                  <div className="flex items-center justify-between mb-6 sm:mb-8">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#f0f4ff] flex items-center justify-center text-[#3f519f] group-hover:bg-[#3f519f] group-hover:text-white transition-all duration-300">
+                      <IconComponent size={20} />
                     </div>
                     <span className="text-xs font-semibold text-slate-400 font-mono tracking-wider">
                       {item.num}
@@ -103,7 +103,7 @@ export default function Expertise() {
 
                 {/* Card Result Badge */}
                 <div className="pt-4 border-t border-slate-100">
-                  <span className="text-[11px] font-bold tracking-wider text-[#3f519f] uppercase">
+                  <span className="text-[10px] sm:text-[11px] font-bold tracking-wider text-[#3f519f] uppercase">
                     {item.result}
                   </span>
                 </div>
