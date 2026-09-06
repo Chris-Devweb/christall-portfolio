@@ -10,6 +10,9 @@ import Methodology from "@/components/Methodology";
 import ContactCTA from "@/components/ContactCTA";
 import Footer from "@/components/Footer";
 import ContactModal, { ContactModalMode } from "@/components/ContactModal";
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 
 export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
