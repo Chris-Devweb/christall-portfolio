@@ -27,6 +27,7 @@ export default function ContactCTA({ onOpenContact }: ContactCTAProps) {
           width={180}
           height={180}
           className="object-contain"
+          style={{ width: "auto", height: "auto" }}
         />
       </div>
 

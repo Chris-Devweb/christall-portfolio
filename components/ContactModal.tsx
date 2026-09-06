@@ -1,26 +1,60 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Send, CheckCircle2, Sparkles, MessageCircle } from "lucide-react";
+import {
+  X,
+  Send,
+  CheckCircle2,
+  Sparkles,
+  MessageCircle,
+  AlertCircle,
+  Briefcase,
+  Layers,
+  ArrowUpRight,
+} from "lucide-react";
+import { siteConfig } from "@/data/site-config";
+
+export type ContactModalMode = "project" | "hire";
 
 interface ContactModalProps {
   isOpen: boolean;
+  initialMode?: ContactModalMode;
   onClose: () => void;
 }
 
-export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
+export default function ContactModal({
+  isOpen,
+  initialMode = "project",
+  onClose,
+}: ContactModalProps) {
+  const [mode, setMode] = useState<ContactModalMode>(initialMode);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    service: "UI/UX Design",
-    budget: "500€ - 1500€",
+    service: siteConfig.services[0] as string,
+    budget: siteConfig.budgets[0] as string,
+    company: "",
+    contractType: siteConfig.contractTypes[0] as string,
+    remuneration: siteConfig.salaryRanges[0] as string,
     message: "",
+    website_hp: "", // Honeypot anti-bot
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [whatsappForwardUrl, setWhatsappForwardUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const whatsappLink =
-    "https://wa.me/22994348096?text=Bonjour%20Christ%CE%9Bll.%20J%27ai%20besoin%20de%20vos%20services.";
+  // Synchronisation lors de l'ouverture
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setErrorMessage(null);
+      setFieldErrors({});
+    }
+  }, [isOpen, initialMode]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,23 +72,72 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setErrorMessage(null);
+    setFieldErrors({});
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          mode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400 && data.details) {
+          setFieldErrors(data.details);
+          setErrorMessage(data.error || "Veuillez corriger les erreurs ci-dessous.");
+        } else if (response.status === 429) {
+          setErrorMessage("Trop de tentatives d'envoi. Veuillez patienter quelques minutes.");
+        } else {
+          setErrorMessage(data.error || "Une erreur est survenue lors de l'envoi.");
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (data.whatsappUrl) {
+        setWhatsappForwardUrl(data.whatsappUrl);
+        // Ouverture automatique de WhatsApp dans un nouvel onglet avec le message pré-rempli
+        try {
+          window.open(data.whatsappUrl, "_blank");
+        } catch {
+          // Ignoré si le navigateur bloque l'ouverture automatique (le bouton reste accessible)
+        }
+      }
+
       setIsSubmitted(true);
-    }, 700);
+    } catch {
+      setErrorMessage("Impossible de joindre le serveur. Vérifiez votre connexion internet.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setIsSubmitted(false);
+    setErrorMessage(null);
+    setFieldErrors({});
+    setWhatsappForwardUrl(null);
     setFormData({
       name: "",
       email: "",
-      service: "UI/UX Design",
-      budget: "500€ - 1500€",
+      service: siteConfig.services[0],
+      budget: siteConfig.budgets[0],
+      company: "",
+      contractType: siteConfig.contractTypes[0],
+      remuneration: siteConfig.salaryRanges[0],
       message: "",
+      website_hp: "",
     });
     onClose();
   };
@@ -68,150 +151,293 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       />
 
       {/* Glass Modal Card */}
-      <div className="relative w-full max-w-xl bg-[#0B1020]/75 backdrop-blur-3xl border border-white/15 rounded-[20px] sm:rounded-[24px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden z-10 my-4 sm:my-8 animate-in zoom-in-95 fade-in duration-300">
+      <div className="relative w-full max-w-xl bg-[#0B1020]/80 backdrop-blur-3xl border border-white/15 rounded-[20px] sm:rounded-[24px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden z-10 my-4 sm:my-8 animate-in zoom-in-95 fade-in duration-300">
         {/* Inner Glow */}
         <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#3f519f]/30 blur-[70px] pointer-events-none" />
         <div className="absolute -bottom-10 right-0 w-60 h-32 bg-[#42aae1]/20 blur-[60px] pointer-events-none" />
 
-        {/* Modal Top Bar */}
-        <div className="flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-6 pb-4 border-b border-white/[0.08] relative z-10">
-          <div className="flex items-center gap-2">
-            <Sparkles size={17} className="text-[#42aae1]" />
-            <h3 className="text-base sm:text-lg font-medium text-white font-heading">
-              Démarrer un projet
-            </h3>
+        {/* Modal Top Bar with Mode Switcher */}
+        <div className="px-4 sm:px-8 pt-5 sm:pt-6 pb-4 border-b border-white/[0.08] relative z-10">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Sparkles size={17} className="text-[#42aae1]" />
+              <h3 className="text-base sm:text-lg font-medium text-white font-heading">
+                {mode === "hire" ? "Proposition d'embauche" : "Démarrer un projet"}
+              </h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
+              aria-label="Fermer la boîte de dialogue"
+            >
+              <X size={16} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
-            aria-label="Fermer"
-          >
-            <X size={16} />
-          </button>
+
+          {/* Mode Switcher Tabs */}
+          {!isSubmitted && (
+            <div className="grid grid-cols-2 p-1 rounded-xl bg-white/[0.05] border border-white/10">
+              <button
+                type="button"
+                onClick={() => setMode("project")}
+                className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  mode === "project"
+                    ? "bg-[#3f519f] text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Layers size={14} />
+                <span>Nouveau Projet</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMode("hire")}
+                className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  mode === "hire"
+                    ? "bg-[#3f519f] text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Briefcase size={14} />
+                <span>M&apos;engager / Embauche</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Modal Body */}
         <div className="p-4 sm:p-6 lg:p-8 relative z-10">
-          {/* WhatsApp Quick Contact */}
-          <div className="mb-5 p-3 sm:p-3.5 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md flex items-center justify-between gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                <MessageCircle size={16} />
-              </div>
-              <div className="text-left min-w-0">
-                <div className="text-xs font-semibold text-white truncate">
-                  Besoin d'une réponse immédiate ?
-                </div>
-                <div className="text-[11px] text-emerald-300/90">
-                  +229 94 34 80 96 (WhatsApp)
-                </div>
-              </div>
+          {/* Global Error Banner */}
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs flex items-center gap-2">
+              <AlertCircle size={16} className="text-red-400 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 sm:px-3.5 py-1.5 rounded-[8px] bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs transition-colors shrink-0"
-            >
-              Écrire sur WhatsApp
-            </a>
-          </div>
+          )}
 
           {isSubmitted ? (
-            <div className="py-8 text-center flex flex-col items-center">
-              <div className="w-14 h-14 rounded-full bg-[#3f519f]/25 border border-[#42aae1]/40 flex items-center justify-center text-[#42aae1] mb-5 animate-bounce">
+            <div className="py-6 text-center flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full bg-[#3f519f]/25 border border-[#42aae1]/40 flex items-center justify-center text-[#42aae1] mb-4 animate-bounce">
                 <CheckCircle2 size={32} />
               </div>
+
               <h4 className="text-xl sm:text-2xl font-medium text-white font-heading mb-2">
-                Message envoyé !
+                Demande envoyée avec succès !
               </h4>
-              <p className="text-slate-300 text-sm max-w-sm mx-auto mb-6">
-                Merci {formData.name}, j'ai bien reçu votre demande. Je vous répondrai sous 24h ouvrées.
+
+              <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto mb-6 leading-relaxed">
+                Votre message a bien été transmis sur mon adresse e-mail (<strong>{siteConfig.email}</strong>). Une réponse vous sera apportée sous 24h ouvrées.
               </p>
+
+              {/* Instant WhatsApp Forward Button */}
+              {whatsappForwardUrl && (
+                <div className="w-full mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col items-center text-center">
+                  <div className="text-xs font-semibold text-emerald-300 mb-1">
+                    📲 Voulez-vous également m&apos;alerter directement sur WhatsApp ?
+                  </div>
+                  <p className="text-[11px] text-slate-300 mb-3 max-w-xs">
+                    Votre message complet est déjà rédigé et prêt à être envoyé en un clic.
+                  </p>
+                  <a
+                    href={whatsappForwardUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle size={16} />
+                    <span>Envoyer aussi sur WhatsApp</span>
+                    <ArrowUpRight size={15} />
+                  </a>
+                </div>
+              )}
+
               <button
                 onClick={handleReset}
-                className="px-6 py-2.5 rounded-[10px] bg-[#4f67e2] text-white font-medium text-sm cursor-pointer"
+                className="px-6 py-2.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.15] text-white font-medium text-xs sm:text-sm cursor-pointer transition-colors border border-white/10"
               >
                 Fermer
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              {/* Honeypot field */}
+              <div aria-hidden="true" style={{ display: "none" }}>
+                <label htmlFor="website_hp">Ne pas remplir ce champ</label>
+                <input
+                  id="website_hp"
+                  type="text"
+                  name="website_hp"
+                  value={formData.website_hp}
+                  onChange={(e) => setFormData({ ...formData, website_hp: e.target.value })}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
+              {/* Nom & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Votre Nom
+                    Votre Nom *
                   </label>
                   <input
                     type="text"
                     required
+                    maxLength={100}
                     placeholder="Jean Dupont"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors"
+                    className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
+                      fieldErrors.name ? "border-red-500" : "border-white/10"
+                    } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors`}
                   />
+                  {fieldErrors.name && (
+                    <p className="text-[11px] text-red-400 mt-1">{fieldErrors.name}</p>
+                  )}
                 </div>
+
                 <div>
                   <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Adresse Email
+                    Adresse Email *
                   </label>
                   <input
                     type="email"
                     required
-                    placeholder="vous@exemple.com"
+                    maxLength={254}
+                    placeholder="vous@entreprise.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors"
+                    className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
+                      fieldErrors.email ? "border-red-500" : "border-white/10"
+                    } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors`}
                   />
+                  {fieldErrors.email && (
+                    <p className="text-[11px] text-red-400 mt-1">{fieldErrors.email}</p>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Prestation
-                  </label>
-                  <select
-                    value={formData.service}
-                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
-                  >
-                    <option value="UI/UX Design">UI/UX Design</option>
-                    <option value="Identité visuelle">Identité visuelle</option>
-                    <option value="Design graphique">Design graphique</option>
-                    <option value="Supports digitaux">Supports digitaux</option>
-                    <option value="Autre / Projet Complet">Autre / Projet Complet</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Budget Estimé
-                  </label>
-                  <select
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
-                  >
-                    <option value="500€ - 1500€">500€ - 1 500€</option>
-                    <option value="1500€ - 3000€">1 500€ - 3 000€</option>
-                    <option value="3000€ - 5000€">3 000€ - 5 000€</option>
-                    <option value="5000€+">5 000€ et plus</option>
-                  </select>
-                </div>
-              </div>
+              {/* Mode Projet : Prestation & Budget */}
+              {mode === "project" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                      Prestation visée *
+                    </label>
+                    <select
+                      value={formData.service}
+                      onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
+                    >
+                      {siteConfig.services.map((srv) => (
+                        <option key={srv} value={srv}>
+                          {srv}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
+                  <div>
+                    <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                      Budget Estimé *
+                    </label>
+                    <select
+                      value={formData.budget}
+                      onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
+                    >
+                      {siteConfig.budgets.map((bgt) => (
+                        <option key={bgt} value={bgt}>
+                          {bgt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                /* Mode Embauche (Hire) : Entreprise, Type de contrat, Rémunération */
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                      Entreprise / Organisation *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nom de votre société ou agence"
+                      value={formData.company}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                        Type de Contrat *
+                      </label>
+                      <select
+                        value={formData.contractType}
+                        onChange={(e) =>
+                          setFormData({ ...formData, contractType: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
+                      >
+                        {siteConfig.contractTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                        Rémunération / Budget *
+                      </label>
+                      <select
+                        value={formData.remuneration}
+                        onChange={(e) =>
+                          setFormData({ ...formData, remuneration: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-[#11192e] border border-white/10 text-white text-sm focus:outline-none focus:border-[#42aae1] transition-colors cursor-pointer"
+                      >
+                        {siteConfig.salaryRanges.map((range) => (
+                          <option key={range} value={range}>
+                            {range}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Message / Description */}
               <div>
                 <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                  Détails du projet
+                  {mode === "hire"
+                    ? "Description du poste & opportunité *"
+                    : "Détails du projet *"}
                 </label>
                 <textarea
                   rows={4}
                   required
-                  placeholder="Décrivez brièvement vos objectifs, vos délais et vos besoins..."
+                  maxLength={3000}
+                  placeholder={
+                    mode === "hire"
+                      ? "Présentez le rôle proposé, la mission, la date de démarrage souhaitée et vos attentes..."
+                      : "Décrivez brièvement vos objectifs, vos délais et vos besoins..."
+                  }
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors resize-none"
+                  className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
+                    fieldErrors.message ? "border-red-500" : "border-white/10"
+                  } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors resize-none`}
                 />
+                {fieldErrors.message && (
+                  <p className="text-[11px] text-red-400 mt-1">{fieldErrors.message}</p>
+                )}
               </div>
 
               <button
@@ -220,10 +446,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 className="w-full py-3 sm:py-3.5 rounded-[10px] bg-[#4f67e2] hover:bg-[#435ad4] text-white font-medium text-sm shadow-[0_4px_25px_rgba(79,103,226,0.45)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <span>Envoi en cours...</span>
+                  <span>Transmission sécurisée...</span>
                 ) : (
                   <>
-                    <span>Envoyer la demande</span>
+                    <span>
+                      {mode === "hire"
+                        ? "Transmettre l'offre d'embauche"
+                        : "Envoyer la demande"}
+                    </span>
                     <Send size={16} />
                   </>
                 )}

@@ -48,6 +48,7 @@ export default function Expertise() {
           width={190}
           height={190}
           className="object-contain"
+          style={{ width: "auto", height: "auto" }}
         />
       </div>
 

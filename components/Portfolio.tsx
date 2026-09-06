@@ -1,109 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
-import ProjectModal, { Project } from "./ProjectModal";
+import {
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+  Sparkles,
+  Palette,
+  Monitor,
+} from "lucide-react";
+import ProjectModal from "./ProjectModal";
+import { Project, ProjectCategoryTab } from "@/types/project";
+import { projectsData } from "@/data/projects";
 
 interface PortfolioProps {
   onOpenContact: () => void;
 }
 
-export const projectsData: Project[] = [
-  {
-    id: "hotel-de-cotonou",
-    title: "Hôtel de Cotonou",
-    category: "Branding & Identité",
-    year: "2024",
-    image: "/images/project_cotonou.jpg",
-    shortDesc:
-      "Création d'une identité visuelle d'exception alliant héritage béninois et standing hôtelier haut de gamme.",
-    fullDesc:
-      "Refonte complète de l'identité de marque pour un complexe hôtelier 5 étoiles. Le projet allie le raffinement de l'hôtellerie de luxe internationale aux symboles traditionnels de la royauté et de la flore béninoise.",
-    client: "Groupe Hôtelier Cotonou Palace",
-    deliverables: [
-      "Logotype royal & Blason héraldique",
-      "Charte graphique & Guidelines complètes",
-      "Papeterie haut de gamme & Enveloppes dorées",
-      "Signalétique intérieure & extérieure",
-      "Supports de conciergerie & Menus de restaurant",
-    ],
-    challenge:
-      "Moderniser l'image d'un établissement emblématique sans dénaturer son ancrage historique et son prestige patrimonial.",
-    solution:
-      "Un emblème héraldique raffiné couronné d'un palmier stylisé, associé à une palette sobre noir & crème et une typographie sérif intemporelle.",
-  },
-  {
-    id: "amani-botanicals",
-    title: "Amani",
-    category: "Packaging & Design",
-    year: "2024",
-    image: "/images/project_amani.jpg",
-    shortDesc:
-      "Direction artistique et packaging d'une gamme de soins botaniques naturels haut de gamme.",
-    fullDesc:
-      "Conception du design produit et du territoire graphique pour une maison de cosmétiques biologiques et véganes. Une approche minimaliste sombre mettant en avant la pureté des formules.",
-    client: "Amani Botanical Skincare",
-    deliverables: [
-      "Design de flacons en verre noir mat & étiquettes texturées",
-      "Packaging secondaire & Boîtages éco-conçus",
-      "Direction artistique photographique studio",
-      "Guide de déploiement retail & e-commerce",
-    ],
-    challenge:
-      "Se démarquer dans un marché saturé de cosmétiques verts en adoptant une esthétique sombre, mystérieuse et ultra-désirable.",
-    solution:
-      "Flaconnage noir mat monolithique, sérigraphie blanche épurée et hiérarchie typographique clinique assurant clarté et distinction absolue.",
-  },
-  {
-    id: "nexmo-mobility",
-    title: "Nexmo",
-    category: "UI/UX & Mobile App",
-    year: "2023",
-    image: "/images/project_nexmo.jpg",
-    shortDesc:
-      "Application mobile de mobilité urbaine intuitive avec recherche en temps réel et réservation instantanée.",
-    fullDesc:
-      "Design complet d'une application mobile de transport multimodal pensée pour simplifier les trajets quotidiens dans les métropoles africaines en pleine expansion.",
-    client: "Nexmo Mobility Technologies",
-    deliverables: [
-      "Recherche utilisateur & Cartographie des parcours",
-      "Design System mobile (iOS & Android)",
-      "Prototypage interactif haute fidélité",
-      "Micro-interactions & Animations de navigation",
-      "Tests d'utilisabilité & Optimisation du taux de conversion",
-    ],
-    challenge:
-      "Concevoir une interface cartographique fluide, utilisable en mouvement et sous une forte luminosité extérieure.",
-    solution:
-      "Une interface ultra-épurée avec des contrastes renforcés, un guidage étape par étape accessible au pouce et une latence visuelle minimale.",
-  },
-  {
-    id: "oxygene-architecture",
-    title: "Oxygène",
-    category: "Direction Artistique",
-    year: "2023",
-    image: "/images/project_oxygene.jpg",
-    shortDesc:
-      "Scénographie visuelle et identité événementielle pour un festival d'architecture contemporaine.",
-    fullDesc:
-      "Création de l'univers visuel et du système graphique pour une biennale internationale d'architecture et de design urbain. Exploration des textures brutes et des perspectives dynamiques.",
-    client: "Biennale d'Architecture Contemporaine",
-    deliverables: [
-      "Affiches sérigraphiées grand format & Bannières urbaines",
-      "Catalogue d'exposition relié de 240 pages",
-      "Identité dynamique & Motion design pour écrans géants",
-      "Scénographie signalétique des pavillons",
-    ],
-    challenge:
-      "Traduire la complexité volumétrique de l'architecture moderne dans un langage graphique bidimensionnel percutant.",
-    solution:
-      "Une approche graphique brutaliste en noir et blanc à fort contraste, mettant en valeur les perspectives hélicoïdales et la lumière naturelle.",
-  },
+const ITEMS_PER_PAGE = 4;
+
+const categoryTabs: {
+  id: string;
+  label: string;
+  tab?: ProjectCategoryTab;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+}[] = [
+  { id: "all", label: "Tous les travaux", icon: Layers },
+  { id: "ui-ux", label: "UI/UX Design", tab: "ui-ux", icon: Monitor },
+  { id: "branding", label: "Brand Identity", tab: "branding", icon: Palette },
+  { id: "supports", label: "Supports Digitaux", tab: "supports", icon: Sparkles },
 ];
 
 export default function Portfolio({ onOpenContact }: PortfolioProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Filtrage mémoïsé des projets selon l'onglet actif
+  const filteredProjects = useMemo(() => {
+    if (activeTab === "all") return projectsData;
+    return projectsData.filter((project) => project.categoryTab === activeTab);
+  }, [activeTab]);
+
+  // Calculs de pagination
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredProjects.length);
+  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    const el = document.getElementById("portfolio");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
     <section
@@ -111,85 +70,220 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
       className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-white overflow-hidden text-slate-900 border-t border-slate-100"
     >
       <div className="w-full max-w-5xl mx-auto">
-        {/* Section Header */}
+        {/* En-tête de section */}
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#3f519f]">
-            PORTFOLIO
+            PORTFOLIO RÉEL &amp; ÉTUDES DE CAS
           </span>
         </div>
 
-        {/* Title */}
+        {/* Titre */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
-          Travaux sélectionnés
+          Travaux &amp; réalisations
         </h2>
 
-        {/* Subtitle */}
-        <p className="text-slate-500 text-base sm:text-lg mb-10 sm:mb-14 max-w-2xl">
-          Une sélection de projets récents alliant rigueur esthétique et impact stratégique.
+        {/* Sous-titre */}
+        <p className="text-slate-500 text-base sm:text-lg mb-8 max-w-2xl">
+          Une collection authentique de projets en UI/UX design, identité de marque et supports digitaux. Explorez chaque étude de cas pour découvrir le processus de conception.
         </p>
 
-        {/* Project Cards */}
-        <div className="flex flex-col gap-5 sm:gap-8">
-          {projectsData.map((project) => (
-            <div
+        {/* Onglets thématiques */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 sm:mb-10 no-scrollbar">
+          {categoryTabs.map((tab) => {
+            const count =
+              tab.id === "all"
+                ? projectsData.length
+                : projectsData.filter((p) => p.categoryTab === tab.id).length;
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wide transition-all duration-200 flex items-center gap-2 shrink-0 cursor-pointer border ${
+                  isActive
+                    ? "bg-[#3f519f] text-white border-[#3f519f] shadow-sm shadow-[#3f519f]/20"
+                    : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                <Icon size={14} className={isActive ? "text-white" : "text-slate-500"} />
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-200/70 text-slate-600"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Compteur & Métadonnées de pagination */}
+        <div className="flex items-center justify-between text-xs sm:text-sm text-slate-500 mb-6 px-1">
+          <span>
+            Affichage de <strong className="text-slate-800">{startIndex + 1}</strong> à{" "}
+            <strong className="text-slate-800">{endIndex}</strong> sur{" "}
+            <strong className="text-slate-800">{filteredProjects.length}</strong> projets
+          </span>
+          <span className="font-mono text-xs">
+            Page {safeCurrentPage} sur {totalPages}
+          </span>
+        </div>
+
+        {/* Liste des cartes de projets */}
+        <div className="flex flex-col gap-6 sm:gap-8 min-h-[600px]">
+          {currentProjects.map((project) => (
+            <article
               key={project.id}
-              className="group relative p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-100/90 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col md:grid md:grid-cols-12 gap-5 sm:gap-8 items-center"
+              className="group relative p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_40px_rgba(63,81,159,0.08)] hover:border-[#42aae1]/30 transition-all duration-300 flex flex-col md:grid md:grid-cols-12 gap-5 sm:gap-7 items-center"
             >
-              {/* Project Image */}
-              <div className="w-full md:col-span-5 relative aspect-[16/10] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/80">
+              {/* Image du projet */}
+              <div className="w-full md:col-span-5 relative aspect-[16/10] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/90 shadow-inner">
                 <Image
                   src={project.image}
-                  alt={project.title}
+                  alt={`Aperçu visuel du projet ${project.title}`}
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="object-contain sm:object-cover transition-transform duration-700 group-hover:scale-105 bg-slate-900/5"
                   sizes="(max-width: 768px) 100vw, 40vw"
                 />
               </div>
 
-              {/* Project Details */}
-              <div className="w-full md:col-span-7 flex flex-col justify-between">
+              {/* Détails du projet */}
+              <div className="w-full md:col-span-7 flex flex-col justify-between h-full">
                 <div>
-                  {/* Title & Category */}
-                  <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading group-hover:text-[#3f519f] transition-colors">
-                      {project.title}
-                    </h3>
-                    <span className="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-[#f0f4ff] text-[#3f519f]">
+                  {/* Badges & Discipline */}
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#f0f4ff] text-[#3f519f] border border-[#3f519f]/10">
                       {project.category}
+                    </span>
+                    {project.framework && (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                        {project.framework}
+                      </span>
+                    )}
+                    <span className="text-xs font-mono text-slate-400 ml-auto">
+                      {project.year}
                     </span>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
+                  {/* Titre */}
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 font-heading group-hover:text-[#3f519f] transition-colors mb-2">
+                    {project.title}
+                  </h3>
+
+                  {/* Description courte */}
+                  <p className="text-slate-600 text-xs sm:text-sm sm:leading-relaxed mb-4 line-clamp-3">
                     {project.shortDesc}
                   </p>
+
+                  {/* Aperçu des livrables */}
+                  <div className="flex flex-wrap gap-1.5 mb-5">
+                    {project.deliverables.slice(0, 3).map((deliverable, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[11px] text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100"
+                      >
+                        {deliverable}
+                      </span>
+                    ))}
+                    {project.deliverables.length > 3 && (
+                      <span className="text-[11px] text-slate-400 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                        +{project.deliverables.length - 3} autres
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* CTA */}
+                {/* Bouton d'action */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <button
                     onClick={() => setSelectedProject(project)}
                     className="px-4 sm:px-5 py-2.5 rounded-[10px] bg-[#3f519f] hover:bg-[#34468f] text-white font-medium text-xs tracking-wider transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-95 group/btn"
                   >
-                    <span>VOIR LE PROJET</span>
+                    <span>VOIR L&apos;ÉTUDE DE CAS</span>
                     <ArrowUpRight
                       size={14}
                       className="transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"
                     />
                   </button>
 
-                  <span className="text-xs font-semibold text-slate-400 font-mono">
-                    {project.year}
+                  <span className="text-xs text-slate-400 italic">
+                    Contexte &rarr; Résultat
                   </span>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
+
+        {/* Contrôles de pagination (Number Scroll) */}
+        {totalPages > 1 && (
+          <nav
+            aria-label="Navigation des pages du portfolio"
+            className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100"
+          >
+            {/* Bouton Précédent */}
+            <button
+              onClick={() => handlePageChange(safeCurrentPage - 1)}
+              disabled={safeCurrentPage <= 1}
+              aria-label="Page précédente"
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all ${
+                safeCurrentPage <= 1
+                  ? "opacity-40 border-slate-200 text-slate-400 cursor-not-allowed bg-slate-50"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm cursor-pointer"
+              }`}
+            >
+              <ChevronLeft size={16} />
+              <span>Précédent</span>
+            </button>
+
+            {/* Numéros de page */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                const isSelected = pageNum === safeCurrentPage;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    aria-label={`Aller à la page ${pageNum}`}
+                    aria-current={isSelected ? "page" : undefined}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center cursor-pointer border ${
+                      isSelected
+                        ? "bg-[#3f519f] text-white border-[#3f519f] shadow-md shadow-[#3f519f]/25 scale-105"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Bouton Suivant */}
+            <button
+              onClick={() => handlePageChange(safeCurrentPage + 1)}
+              disabled={safeCurrentPage >= totalPages}
+              aria-label="Page suivante"
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all ${
+                safeCurrentPage >= totalPages
+                  ? "opacity-40 border-slate-200 text-slate-400 cursor-not-allowed bg-slate-50"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm cursor-pointer"
+              }`}
+            >
+              <span>Suivant</span>
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        )}
       </div>
 
-      {/* Project Detail Modal */}
+      {/* Modale d'étude de cas détaillée */}
       <ProjectModal
         project={selectedProject}
         onClose={() => setSelectedProject(null)}

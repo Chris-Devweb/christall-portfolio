@@ -9,12 +9,14 @@ import Portfolio from "@/components/Portfolio";
 import Methodology from "@/components/Methodology";
 import ContactCTA from "@/components/ContactCTA";
 import Footer from "@/components/Footer";
-import ContactModal from "@/components/ContactModal";
+import ContactModal, { ContactModalMode } from "@/components/ContactModal";
 
 export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactModalMode, setContactModalMode] = useState<ContactModalMode>("project");
 
-  const handleOpenContact = () => {
+  const handleOpenContact = (mode: ContactModalMode = "project") => {
+    setContactModalMode(mode);
     setIsContactModalOpen(true);
   };
 
@@ -25,11 +27,11 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-[#060913]">
       {/* Floating Navigation */}
-      <Navbar onOpenContact={handleOpenContact} />
+      <Navbar onOpenContact={() => handleOpenContact("project")} />
 
       {/* Main Content Sections */}
       <main className="flex-1 w-full flex flex-col">
-        {/* Hero Section (Dark Theme) */}
+        {/* Hero Section (Dark Theme avec boutons Embauche, Projet, Portfolio) */}
         <Hero onOpenContact={handleOpenContact} />
 
         {/* About Section (Light Theme) */}
@@ -39,21 +41,22 @@ export default function Home() {
         <Expertise />
 
         {/* Portfolio / Selected Works Section (Light Theme) */}
-        <Portfolio onOpenContact={handleOpenContact} />
+        <Portfolio onOpenContact={() => handleOpenContact("project")} />
 
         {/* Methodology Section (Light Theme) */}
         <Methodology />
 
         {/* Call To Action Section (Dark Theme with Glow) */}
-        <ContactCTA onOpenContact={handleOpenContact} />
+        <ContactCTA onOpenContact={() => handleOpenContact("project")} />
       </main>
 
       {/* Footer (Dark Theme) */}
       <Footer />
 
-      {/* Interactive Contact Modal */}
+      {/* Interactive Contact & Hire Modal */}
       <ContactModal
         isOpen={isContactModalOpen}
+        initialMode={contactModalMode}
         onClose={handleCloseContact}
       />
     </div>

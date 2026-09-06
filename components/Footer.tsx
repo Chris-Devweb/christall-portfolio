@@ -3,18 +3,12 @@
 import Link from "next/link";
 import { ArrowUp, Mail, MessageCircle } from "lucide-react";
 
+import { siteConfig } from "@/data/site-config";
+
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  const whatsappLink =
-    "https://wa.me/22994348096?text=Bonjour%20Christ%CE%9Bll.%20J%27ai%20besoin%20de%20vos%20services.";
-  const instagramLink =
-    "https://www.instagram.com/cossouhonneur";
-  const facebookLink = "https://www.facebook.com/chris.cossou";
-  const linkedinLink = "https://www.linkedin.com/in/honneur-cossou-344749301";
-  const emailLink = "mailto:cossouchristall@gmail.com";
 
   return (
     <footer className="relative bg-[#04060d] text-slate-400 pt-14 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6 border-t border-white/[0.08]">
@@ -36,7 +30,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 flex-wrap">
               {/* WhatsApp */}
               <a
-                href={whatsappLink}
+                href={siteConfig.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-[10px] bg-white/5 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-slate-400 transition-all"
@@ -47,7 +41,7 @@ export default function Footer() {
 
               {/* LinkedIn */}
               <a
-                href={linkedinLink}
+                href={siteConfig.socials.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-[10px] bg-white/5 hover:bg-[#3f519f] hover:text-white flex items-center justify-center text-slate-400 transition-all"
@@ -60,7 +54,7 @@ export default function Footer() {
 
               {/* Instagram */}
               <a
-                href={instagramLink}
+                href={siteConfig.socials.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-[10px] bg-white/5 hover:bg-[#bc1888] hover:text-white flex items-center justify-center text-slate-400 transition-all"
@@ -73,7 +67,7 @@ export default function Footer() {
 
               {/* Facebook */}
               <a
-                href={facebookLink}
+                href={siteConfig.socials.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-[10px] bg-white/5 hover:bg-[#1877f2] hover:text-white flex items-center justify-center text-slate-400 transition-all"
@@ -86,7 +80,7 @@ export default function Footer() {
 
               {/* Email */}
               <a
-                href={emailLink}
+                href={`mailto:${siteConfig.email}`}
                 className="w-9 h-9 rounded-[10px] bg-white/5 hover:bg-[#42aae1] hover:text-white flex items-center justify-center text-slate-400 transition-all"
                 aria-label="Email"
               >
@@ -124,13 +118,13 @@ export default function Footer() {
               Philosophie
             </span>
             <p className="text-base sm:text-lg font-medium text-white font-heading max-w-xs mb-3">
-              "Moi c'est ChristΛll. Et je fais briller tes idées."
+              &quot;Moi c&apos;est ChristΛll. Et je fais briller tes idées.&quot;
             </p>
             <span className="text-xs text-slate-400 mb-1">
-              cossouchristall@gmail.com
+              {siteConfig.email}
             </span>
             <span className="text-xs text-slate-500">
-              +229 94 34 80 96 · Cotonou, Bénin
+              {siteConfig.phone} · {siteConfig.location}
             </span>
           </div>
         </div>
