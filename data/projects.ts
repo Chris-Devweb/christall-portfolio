@@ -391,7 +391,7 @@ export const projectsData: Project[] = [
   },
   {
     id: "tendo-logo",
-    title: "Tendo Logo",
+    title: "Tcheck Art Logo",
     category: "Brand Identity",
     categoryTab: "branding",
     year: "2023",
