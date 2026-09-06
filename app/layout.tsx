@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -78,6 +79,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#0B1020] text-[#1e293b] font-sans selection:bg-[#42aae1] selection:text-white">
         {children}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
