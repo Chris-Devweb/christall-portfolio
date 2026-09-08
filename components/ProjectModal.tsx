@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { Project, ProjectCategoryTab } from "@/types/project";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type { Project, ProjectCategoryTab };
 
@@ -32,6 +33,8 @@ export default function ProjectModal({
   onClose,
   onOpenContact,
 }: ProjectModalProps) {
+  const { language } = useLanguage();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -114,7 +117,7 @@ export default function ProjectModal({
               </div>
               <div>
                 <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Cadre / Contexte
+                  {language === "fr" ? "Cadre / Contexte" : "Framework / Context"}
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-slate-800 line-clamp-1">
                   {project.client}
@@ -128,7 +131,7 @@ export default function ProjectModal({
               </div>
               <div>
                 <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Période
+                  {language === "fr" ? "Période" : "Timeline"}
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-slate-800">
                   {project.year}
@@ -156,7 +159,7 @@ export default function ProjectModal({
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
               <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#3f519f] font-heading">
-                Étude de Cas Détaillée
+                {language === "fr" ? "Étude de Cas Détaillée" : "Detailed Case Study"}
               </h3>
             </div>
 
@@ -166,7 +169,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-[#3f519f]">
                   <Layers size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    1. Contexte
+                    {language === "fr" ? "1. Contexte" : "1. Context"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -179,7 +182,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-amber-600">
                   <HelpCircle size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    2. Problème
+                    {language === "fr" ? "2. Problème" : "2. Problem Statement"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -192,7 +195,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-sky-600">
                   <Target size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    3. Objectif
+                    {language === "fr" ? "3. Objectif" : "3. Objective"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -205,7 +208,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-indigo-600">
                   <Cpu size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    4. Processus
+                    {language === "fr" ? "4. Processus" : "4. Process"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -218,7 +221,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-emerald-600">
                   <Sparkles size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    5. Solution
+                    {language === "fr" ? "5. Solution" : "5. Solution"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -231,7 +234,7 @@ export default function ProjectModal({
                 <div className="flex items-center gap-2 mb-2 text-[#3f519f]">
                   <Award size={16} />
                   <span className="text-xs font-bold uppercase tracking-wide">
-                    6. Résultat
+                    {language === "fr" ? "6. Résultat & Impact" : "6. Results & Impact"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -245,7 +248,7 @@ export default function ProjectModal({
           {project.deliverables && project.deliverables.length > 0 && (
             <div>
               <h3 className="text-sm sm:text-base font-bold text-slate-900 mb-3 font-heading">
-                Livrables Clés Réalisés
+                {language === "fr" ? "Livrables Clés Réalisés" : "Key Deliverables"}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                 {project.deliverables.map((item, idx) => (
@@ -264,7 +267,9 @@ export default function ProjectModal({
           {/* Bottom CTA */}
           <div className="pt-5 sm:pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs sm:text-sm text-slate-500 text-center sm:text-left">
-              Vous avez un projet similaire ou souhaitez échanger autour de ce travail ?
+              {language === "fr"
+                ? "Vous avez un projet similaire ou souhaitez échanger autour de ce travail ?"
+                : "Have a similar project or want to discuss this work?"}
             </p>
             <button
               onClick={() => {
@@ -273,7 +278,7 @@ export default function ProjectModal({
               }}
               className="w-full sm:w-auto px-5 sm:px-6 py-3 rounded-[10px] bg-[#3f519f] hover:bg-[#34468f] text-white font-medium text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
-              <span>Discuter de ce projet</span>
+              <span>{language === "fr" ? "Discuter de ce projet" : "Discuss this project"}</span>
               <ArrowUpRight size={16} />
             </button>
           </div>

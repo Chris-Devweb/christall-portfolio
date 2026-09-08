@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
       `📌 *Type :* ${isHireMode ? "Opportunité d'Embauche / Recrutement" : "Nouveau Projet"}\n` +
       `👤 *Nom :* ${data.name}\n` +
       `📧 *Email :* ${data.email}\n` +
+      `📞 *Téléphone :* ${data.phone}\n` +
       (isHireMode && data.company ? `🏢 *Entreprise :* ${data.company}\n` : "") +
       (isHireMode && data.contractType ? `📋 *Contrat :* ${data.contractType}\n` : "") +
       (isHireMode && data.remuneration ? `💵 *Rémunération :* ${data.remuneration}\n` : "") +
@@ -131,6 +132,7 @@ export async function POST(req: NextRequest) {
           "Type de demande": isHireMode ? "Opportunité d'embauche" : "Nouveau projet",
           Nom: data.name,
           Email: data.email,
+          "Téléphone": data.phone,
           ...(isHireMode
             ? {
                 Entreprise: data.company || "Non précisée",

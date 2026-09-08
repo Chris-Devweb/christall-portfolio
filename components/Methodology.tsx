@@ -1,7 +1,11 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 export default function Methodology() {
-  const steps = [
+  const { language } = useLanguage();
+
+  const steps = language === "fr" ? [
     {
       number: "1",
       title: "Échange",
@@ -21,6 +25,27 @@ export default function Methodology() {
       number: "4",
       title: "Révélation",
       desc: "Livraison des assets finaux dans tous les formats, avec guide d'utilisation complet.",
+    },
+  ] : [
+    {
+      number: "1",
+      title: "Discovery",
+      desc: "Deep dive into your ecosystem, defining core goals and strategic framework.",
+    },
+    {
+      number: "2",
+      title: "Research",
+      desc: "Benchmark analysis, moodboards, and creative directions to align the vision.",
+    },
+    {
+      number: "3",
+      title: "Design",
+      desc: "Iterative creation, UX/UI screen design, and regular prototype presentations.",
+    },
+    {
+      number: "4",
+      title: "Delivery",
+      desc: "Handoff of production-ready assets across all formats with complete guidelines.",
     },
   ];
 
@@ -44,18 +69,20 @@ export default function Methodology() {
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#3f519f]">
-            MÉTHODOLOGIE
+            {language === "fr" ? "MÉTHODOLOGIE" : "METHODOLOGY"}
           </span>
         </div>
 
         {/* Title */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
-          Une démarche limpide
+          {language === "fr" ? "Une démarche limpide" : "A Clear & Proven Approach"}
         </h2>
 
         {/* Subtitle */}
         <p className="text-slate-500 text-base sm:text-lg mb-10 sm:mb-16 max-w-2xl">
-          Un processus structuré et itératif pour transformer votre vision en réalité avec sérénité.
+          {language === "fr"
+            ? "Un processus structuré et itératif pour transformer votre vision en réalité avec sérénité."
+            : "A structured and iterative process to transform your vision into reality with peace of mind."}
         </p>
 
         {/* Steps — 1 col mobile, 2 on sm, 4 on lg */}

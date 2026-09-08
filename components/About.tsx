@@ -2,13 +2,21 @@
 
 import Image from "next/image";
 import { Sparkles, Eye, Zap, Users } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function About() {
-  const qualities = [
+  const { language } = useLanguage();
+
+  const qualities = language === "fr" ? [
     { name: "Créativité", icon: Sparkles },
     { name: "Clarté", icon: Eye },
     { name: "Impact", icon: Zap },
     { name: "Expérience", icon: Users },
+  ] : [
+    { name: "Creativity", icon: Sparkles },
+    { name: "Clarity", icon: Eye },
+    { name: "Impact", icon: Zap },
+    { name: "Experience", icon: Users },
   ];
 
   return (
@@ -31,13 +39,15 @@ export default function About() {
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#3f519f]">
-            À PROPOS
+            {language === "fr" ? "À PROPOS" : "ABOUT ME"}
           </span>
         </div>
 
         {/* Title */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-10 sm:mb-14 font-heading max-w-2xl">
-          Moi c'est ChristΛll. Et je fais briller tes idées.
+          {language === "fr"
+            ? "Moi c'est ChristΛll. Et je fais briller tes idées."
+            : "I'm ChristΛll. And I bring your ideas into the light."}
         </h2>
 
         {/* 2-Column Content Layout */}
@@ -59,7 +69,7 @@ export default function About() {
               <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 z-10">
                 <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-lg text-xs font-semibold text-slate-800">
                   <span className="w-2 h-2 rounded-full bg-[#3f519f] animate-pulse" />
-                  <span>ChristΛll. • Un univers</span>
+                  <span>{language === "fr" ? "ChristΛll. • Un univers" : "ChristΛll. • A Universe"}</span>
                 </div>
               </div>
             </div>
@@ -68,8 +78,9 @@ export default function About() {
           {/* Right Column: Bio & Metrics */}
           <div className="lg:col-span-6 flex flex-col justify-center">
             <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-7 font-normal">
-              Hello World ! Moi c'est ChristΛll, et je suis heureux de vous accueillir dans mon univers.
-              Celui d'un designer passionnée par l'intersection de la pureté esthétique et de l'ergonomie, j'accompagne les marques audacieuses et les institutions dans la matérialisation de leur identité.
+              {language === "fr"
+                ? "Hello World ! Moi c'est ChristΛll, et je suis heureux de vous accueillir dans mon univers. Celui d'un designer passionnée par l'intersection de la pureté esthétique et de l'ergonomie, j'accompagne les marques audacieuses et les institutions dans la matérialisation de leur identité."
+                : "Hello World! I'm ChristΛll, and I'm delighted to welcome you to my creative space. As a designer passionate about the intersection of aesthetic purity and ergonomics, I support forward-thinking brands and institutions in bringing their identity to life."}
             </p>
 
             {/* Quality Badges */}
@@ -95,7 +106,7 @@ export default function About() {
                   100%
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  SUR MESURE
+                  {language === "fr" ? "SUR MESURE" : "TAILOR-MADE"}
                 </div>
               </div>
 
@@ -104,7 +115,7 @@ export default function About() {
                   02+
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  ANNÉES D'EXPLORATION
+                  {language === "fr" ? "ANNÉES D'EXPLORATION" : "YEARS OF CRAFT"}
                 </div>
               </div>
             </div>

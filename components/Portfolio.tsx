@@ -15,28 +15,31 @@ import ProjectModal from "./ProjectModal";
 import { Project, ProjectCategoryTab } from "@/types/project";
 import { projectsData } from "@/data/projects";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface PortfolioProps {
   onOpenContact: () => void;
 }
 
 const ITEMS_PER_PAGE = 4;
 
-const categoryTabs: {
-  id: string;
-  label: string;
-  tab?: ProjectCategoryTab;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-}[] = [
-  { id: "all", label: "Tous les travaux", icon: Layers },
-  { id: "ui-ux", label: "UI/UX Design", tab: "ui-ux", icon: Monitor },
-  { id: "branding", label: "Brand Identity", tab: "branding", icon: Palette },
-  { id: "supports", label: "Supports Digitaux", tab: "supports", icon: Sparkles },
-];
-
 export default function Portfolio({ onOpenContact }: PortfolioProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const { t } = useLanguage();
+
+  const categoryTabs: {
+    id: string;
+    label: string;
+    tab?: ProjectCategoryTab;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+  }[] = [
+    { id: "all", label: t.portfolio.filterAll, icon: Layers },
+    { id: "ui-ux", label: t.portfolio.filterUiUx, tab: "ui-ux", icon: Monitor },
+    { id: "branding", label: t.portfolio.filterBranding, tab: "branding", icon: Palette },
+    { id: "supports", label: t.portfolio.filterSupports, tab: "supports", icon: Sparkles },
+  ];
 
   // Filtrage mémoïsé des projets selon l'onglet actif
   const filteredProjects = useMemo(() => {
@@ -74,18 +77,18 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3f519f]" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#3f519f]">
-            PORTFOLIO RÉEL &amp; ÉTUDES DE CAS
+            {t.portfolio.tag}
           </span>
         </div>
 
         {/* Titre */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.2] mb-4 font-heading max-w-2xl">
-          Travaux &amp; réalisations
+          {t.portfolio.title}
         </h2>
 
         {/* Sous-titre */}
         <p className="text-slate-500 text-base sm:text-lg mb-8 max-w-2xl">
-          Une collection authentique de projets en UI/UX design, identité de marque et supports digitaux. Explorez chaque étude de cas pour découvrir le processus de conception.
+          {t.portfolio.subtitle}
         </p>
 
         {/* Onglets thématiques */}
@@ -206,7 +209,7 @@ export default function Portfolio({ onOpenContact }: PortfolioProps) {
                     onClick={() => setSelectedProject(project)}
                     className="px-4 sm:px-5 py-2.5 rounded-[10px] bg-[#3f519f] hover:bg-[#34468f] text-white font-medium text-xs tracking-wider transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-95 group/btn"
                   >
-                    <span>VOIR L&apos;ÉTUDE DE CAS</span>
+                    <span>{t.portfolio.viewDetails.toUpperCase()}</span>
                     <ArrowUpRight
                       size={14}
                       className="transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"

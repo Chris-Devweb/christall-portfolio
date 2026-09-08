@@ -13,26 +13,31 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type ContactModalMode = "project" | "hire";
 
 interface ContactModalProps {
   isOpen: boolean;
   initialMode?: ContactModalMode;
+  initialService?: string;
   onClose: () => void;
 }
 
 export default function ContactModal({
   isOpen,
   initialMode = "project",
+  initialService,
   onClose,
 }: ContactModalProps) {
   const [mode, setMode] = useState<ContactModalMode>(initialMode);
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    service: siteConfig.services[0] as string,
+    phone: "",
+    service: (initialService || siteConfig.services[0]) as string,
     budget: siteConfig.budgets[0] as string,
     company: "",
     contractType: siteConfig.contractTypes[0] as string,
@@ -53,8 +58,11 @@ export default function ContactModal({
       setMode(initialMode);
       setErrorMessage(null);
       setFieldErrors({});
+      if (initialService) {
+        setFormData((prev) => ({ ...prev, service: initialService }));
+      }
     }
-  }, [isOpen, initialMode]);
+  }, [isOpen, initialMode, initialService]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -131,6 +139,7 @@ export default function ContactModal({
     setFormData({
       name: "",
       email: "",
+      phone: "",
       service: siteConfig.services[0],
       budget: siteConfig.budgets[0],
       company: "",
@@ -162,7 +171,7 @@ export default function ContactModal({
             <div className="flex items-center gap-2">
               <Sparkles size={17} className="text-[#42aae1]" />
               <h3 className="text-base sm:text-lg font-medium text-white font-heading">
-                {mode === "hire" ? "Proposition d'embauche" : "Démarrer un projet"}
+                {mode === "hire" ? t.contactModal.titleHire : t.contactModal.titleProject}
               </h3>
             </div>
             <button
@@ -187,7 +196,7 @@ export default function ContactModal({
                 }`}
               >
                 <Layers size={14} />
-                <span>Nouveau Projet</span>
+                <span>{t.contactModal.tabProject}</span>
               </button>
 
               <button
@@ -200,7 +209,7 @@ export default function ContactModal({
                 }`}
               >
                 <Briefcase size={14} />
-                <span>M&apos;engager / Embauche</span>
+                <span>{t.contactModal.tabHire}</span>
               </button>
             </div>
           )}
@@ -223,21 +232,21 @@ export default function ContactModal({
               </div>
 
               <h4 className="text-xl sm:text-2xl font-medium text-white font-heading mb-2">
-                Demande envoyée avec succès !
+                {t.contactModal.successTitle}
               </h4>
 
               <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto mb-6 leading-relaxed">
-                Votre message a bien été transmis sur mon adresse e-mail (<strong>{siteConfig.email}</strong>). Une réponse vous sera apportée sous 24h ouvrées.
+                {t.contactModal.successDesc}
               </p>
 
               {/* Instant WhatsApp Forward Button */}
               {whatsappForwardUrl && (
                 <div className="w-full mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col items-center text-center">
                   <div className="text-xs font-semibold text-emerald-300 mb-1">
-                    📲 Voulez-vous également m&apos;alerter directement sur WhatsApp ?
+                    {t.contactModal.whatsappPrompt}
                   </div>
                   <p className="text-[11px] text-slate-300 mb-3 max-w-xs">
-                    Votre message complet est déjà rédigé et prêt à être envoyé en un clic.
+                    {t.contactModal.whatsappSub}
                   </p>
                   <a
                     href={whatsappForwardUrl}
@@ -246,7 +255,7 @@ export default function ContactModal({
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                   >
                     <MessageCircle size={16} />
-                    <span>Envoyer aussi sur WhatsApp</span>
+                    <span>{t.contactModal.whatsappBtn}</span>
                     <ArrowUpRight size={15} />
                   </a>
                 </div>
@@ -256,7 +265,7 @@ export default function ContactModal({
                 onClick={handleReset}
                 className="px-6 py-2.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.15] text-white font-medium text-xs sm:text-sm cursor-pointer transition-colors border border-white/10"
               >
-                Fermer
+                {t.contactModal.closeBtn}
               </button>
             </div>
           ) : (
@@ -275,37 +284,38 @@ export default function ContactModal({
                 />
               </div>
 
-              {/* Nom & Email */}
+              {/* Nom */}
+              <div>
+                <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                  {t.contactModal.labelName}
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={100}
+                  placeholder={t.contactModal.placeholderName}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
+                    fieldErrors.name ? "border-red-500" : "border-white/10"
+                  } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors`}
+                />
+                {fieldErrors.name && (
+                  <p className="text-[11px] text-red-400 mt-1">{fieldErrors.name}</p>
+                )}
+              </div>
+
+              {/* Email & Téléphone (Présents dans les 2 formulaires) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Votre Nom *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={100}
-                    placeholder="Jean Dupont"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
-                      fieldErrors.name ? "border-red-500" : "border-white/10"
-                    } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors`}
-                  />
-                  {fieldErrors.name && (
-                    <p className="text-[11px] text-red-400 mt-1">{fieldErrors.name}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                    Adresse Email *
+                    {t.contactModal.labelEmail}
                   </label>
                   <input
                     type="email"
                     required
                     maxLength={254}
-                    placeholder="vous@entreprise.com"
+                    placeholder={t.contactModal.placeholderEmail}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
@@ -316,6 +326,26 @@ export default function ContactModal({
                     <p className="text-[11px] text-red-400 mt-1">{fieldErrors.email}</p>
                   )}
                 </div>
+
+                <div>
+                  <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
+                    {t.contactModal.labelPhone}
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={30}
+                    placeholder={t.contactModal.placeholderPhone}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className={`w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border ${
+                      fieldErrors.phone ? "border-red-500" : "border-white/10"
+                    } text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors`}
+                  />
+                  {fieldErrors.phone && (
+                    <p className="text-[11px] text-red-400 mt-1">{fieldErrors.phone}</p>
+                  )}
+                </div>
               </div>
 
               {/* Mode Projet : Prestation & Budget */}
@@ -323,7 +353,7 @@ export default function ContactModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                      Prestation visée *
+                      {t.contactModal.labelService}
                     </label>
                     <select
                       value={formData.service}
@@ -340,7 +370,7 @@ export default function ContactModal({
 
                   <div>
                     <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                      Budget Estimé *
+                      {t.contactModal.labelBudget}
                     </label>
                     <select
                       value={formData.budget}
@@ -360,11 +390,11 @@ export default function ContactModal({
                 <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                      Entreprise / Organisation *
+                      {t.contactModal.labelCompany}
                     </label>
                     <input
                       type="text"
-                      placeholder="Nom de votre société ou agence"
+                      placeholder={t.contactModal.placeholderCompany}
                       value={formData.company}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                       className="w-full px-4 py-2.5 sm:py-3 rounded-[10px] bg-white/[0.04] backdrop-blur-md border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-[#42aae1] transition-colors"
@@ -374,7 +404,7 @@ export default function ContactModal({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                        Type de Contrat *
+                        {t.contactModal.labelContract}
                       </label>
                       <select
                         value={formData.contractType}
@@ -393,7 +423,7 @@ export default function ContactModal({
 
                     <div>
                       <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
-                        Rémunération / Budget *
+                        {t.contactModal.labelSalary}
                       </label>
                       <select
                         value={formData.remuneration}
@@ -417,8 +447,8 @@ export default function ContactModal({
               <div>
                 <label className="block text-xs font-medium uppercase text-slate-300 tracking-wider mb-2">
                   {mode === "hire"
-                    ? "Description du poste & opportunité *"
-                    : "Détails du projet *"}
+                    ? t.contactModal.labelMessageHire
+                    : t.contactModal.labelMessageProject}
                 </label>
                 <textarea
                   rows={4}
@@ -426,8 +456,8 @@ export default function ContactModal({
                   maxLength={3000}
                   placeholder={
                     mode === "hire"
-                      ? "Présentez le rôle proposé, la mission, la date de démarrage souhaitée et vos attentes..."
-                      : "Décrivez brièvement vos objectifs, vos délais et vos besoins..."
+                      ? t.contactModal.placeholderMessageHire
+                      : t.contactModal.placeholderMessageProject
                   }
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -446,13 +476,13 @@ export default function ContactModal({
                 className="w-full py-3 sm:py-3.5 rounded-[10px] bg-[#4f67e2] hover:bg-[#435ad4] text-white font-medium text-sm shadow-[0_4px_25px_rgba(79,103,226,0.45)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <span>Transmission sécurisée...</span>
+                  <span>{t.contactModal.submittingText}</span>
                 ) : (
                   <>
                     <span>
                       {mode === "hire"
-                        ? "Transmettre l'offre d'embauche"
-                        : "Envoyer la demande"}
+                        ? (t.contactModal.tabHire)
+                        : t.contactModal.submitText}
                     </span>
                     <Send size={16} />
                   </>

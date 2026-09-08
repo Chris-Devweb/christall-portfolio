@@ -3,12 +3,15 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import LogoWhiteWatermark from "./LogoWhiteWatermark";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ContactCTAProps {
   onOpenContact: () => void;
 }
 
 export default function ContactCTA({ onOpenContact }: ContactCTAProps) {
+  const { t, language } = useLanguage();
+
   return (
     <section className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-[linear-gradient(180deg,#0B1020_0%,#0F172A_100%)] overflow-hidden">
       {/* Background Glow */}
@@ -40,18 +43,29 @@ export default function ContactCTA({ onOpenContact }: ContactCTAProps) {
           <div className="relative z-10 flex flex-col items-center">
             {/* Top Tag */}
             <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.2em] text-slate-300/80 mb-5">
-              PRÊT À COLLABORER ?
+              {language === "fr" ? "PRÊT À COLLABORER ?" : "READY TO COLLABORATE?"}
             </span>
 
             {/* Headline */}
             <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-white leading-tight mb-4 font-heading max-w-3xl">
-              Une idée en tête ?{" "}
-              <span className="text-[#8fa7df]">Faisons-la briller.</span>
+              {language === "fr" ? (
+                <>
+                  Une idée en tête ?{" "}
+                  <span className="text-[#8fa7df]">Faisons-la briller.</span>
+                </>
+              ) : (
+                <>
+                  Have an idea in mind?{" "}
+                  <span className="text-[#8fa7df]">Let&apos;s make it shine.</span>
+                </>
+              )}
             </h2>
 
             {/* Subtitle */}
             <p className="text-xs sm:text-sm md:text-[15px] text-slate-300/80 max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto mb-8 sm:mb-9 leading-relaxed font-normal">
-              Donnons vie à votre identité visuelle et redéfinissons ensemble l'expérience digitale de vos utilisateurs.
+              {language === "fr"
+                ? "Donnons vie à votre identité visuelle et redéfinissons ensemble l'expérience digitale de vos utilisateurs."
+                : "Let's bring your visual identity to life and redefine your digital user experience together."}
             </p>
 
             {/* CTA Button */}
@@ -59,13 +73,15 @@ export default function ContactCTA({ onOpenContact }: ContactCTAProps) {
               onClick={onOpenContact}
               className="px-7 sm:px-9 py-3 sm:py-3.5 rounded-[10px] bg-[#4f67e2] hover:bg-[#435ad4] text-white font-medium text-sm tracking-wide transition-all duration-300 shadow-[0_4px_25px_rgba(79,103,226,0.45)] hover:shadow-[0_6px_30px_rgba(79,103,226,0.6)] active:scale-95 flex items-center gap-2 cursor-pointer mb-4 sm:mb-5"
             >
-              <span>DÉMARRER UN PROJET</span>
+              <span>{language === "fr" ? "DÉMARRER UN PROJET" : "START A PROJECT"}</span>
               <ArrowUpRight size={17} />
             </button>
 
             {/* Subtext */}
             <span className="text-xs text-slate-400/70 font-normal">
-              Réponse rapide et confidentielle.
+              {language === "fr"
+                ? "Réponse rapide et confidentielle."
+                : "Prompt & confidential reply."}
             </span>
           </div>
         </div>

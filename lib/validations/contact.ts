@@ -22,17 +22,27 @@ export const contactFormSchema = z.object({
         .email("Veuillez renseigner une adresse email valide.")
         .max(254, "L'adresse email est trop longue.")
     ),
+  phone: z
+    .string()
+    .transform((val) => sanitizeString(val))
+    .pipe(
+      z
+        .string()
+        .min(6, "Veuillez renseigner un numéro de téléphone valide (au moins 6 caractères).")
+        .max(30, "Le numéro de téléphone ne peut pas dépasser 30 caractères.")
+    ),
   // Champs spécifiques au mode Projet
-  service: z.enum(siteConfig.services).optional(),
-  budget: z.enum(siteConfig.budgets).optional(),
+  service: z.string().max(100).optional(),
+  budget: z.string().max(100).optional(),
 
   // Champs spécifiques au mode Recrutement / Embauche (Hire)
   company: z
     .string()
+    .max(150)
     .transform((val) => sanitizeString(val))
     .optional(),
-  contractType: z.enum(siteConfig.contractTypes).optional(),
-  remuneration: z.enum(siteConfig.salaryRanges).optional(),
+  contractType: z.string().max(100).optional(),
+  remuneration: z.string().max(100).optional(),
 
   message: z
     .string()

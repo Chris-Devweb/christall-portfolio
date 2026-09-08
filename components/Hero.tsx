@@ -3,12 +3,15 @@
 import Image from "next/image";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import LogoWhiteWatermark from "./LogoWhiteWatermark";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface HeroProps {
   onOpenContact: () => void;
 }
 
 export default function Hero({ onOpenContact }: HeroProps) {
+  const { t } = useLanguage();
+
   return (
     <section className="relative min-h-[95vh] sm:min-h-screen flex flex-col justify-between items-center pt-32 sm:pt-40 pb-6 px-4 sm:px-6 overflow-hidden bg-[linear-gradient(180deg,#0B1020_0%,#0F172A_100%)]">
       {/* Top-Right Corner Layer Blur Circle */}
@@ -29,27 +32,27 @@ export default function Hero({ onOpenContact }: HeroProps) {
         />
       </div>
 
-      {/* Main Content Area - Remonté de 10px */}
+      {/* Main Content Area - Aéré par rapport à la navbar, remonté de 10px */}
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center text-center my-auto z-10 pt-4 sm:pt-8 -translate-y-[10px]">
         {/* Category Badges */}
         <div className="flex items-center justify-center gap-3 mb-6 sm:mb-7">
           <span className="px-4 py-1.5 rounded-full text-xs font-normal text-slate-300 bg-[#12192c]/85 border border-white/10 backdrop-blur-md">
-            UI/UX Designer
+            {t.hero.badgeUiUx}
           </span>
           <span className="px-4 py-1.5 rounded-full text-xs font-normal text-slate-300 bg-[#12192c]/85 border border-white/10 backdrop-blur-md">
-            Branding &amp; Visual
+            {t.hero.badgeBranding}
           </span>
         </div>
 
         {/* Headline: 2 lines exactly */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-medium tracking-tight text-white leading-[1.18] mb-4 font-heading max-w-4xl">
-          Je transforme les idées en<br />
-          <span className="text-[#8fa7df]">identités</span> qui marquent.
+          {t.hero.headlinePart1}<br />
+          <span className="text-[#8fa7df]">{t.hero.headlineHighlight}</span> {t.hero.headlinePart2}
         </h1>
 
         {/* Subtitle: 1 line */}
         <p className="text-xs sm:text-sm md:text-[15px] text-slate-300/80 font-normal max-w-3xl mb-9 text-center tracking-normal whitespace-normal sm:whitespace-nowrap">
-          Designer UI/UX passionné par l&apos;impact visuel et l&apos;expérience utilisateur.
+          {t.hero.subtitle}
         </p>
 
         {/* Action Buttons: 2 boutons */}
@@ -73,7 +76,7 @@ export default function Hero({ onOpenContact }: HeroProps) {
               href="#portfolio"
               className="relative z-10 w-full sm:w-auto pl-12 pr-8 py-3.5 rounded-[10px] text-white font-medium text-sm tracking-wide bg-[#4f67e2] hover:bg-[#435ad4] transition-all duration-300 shadow-[0_4px_25px_rgba(79,103,226,0.45)] active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap group"
             >
-              <span>VOIR MES PROJETS</span>
+              <span>{t.hero.viewProjects}</span>
               <ArrowUpRight
                 size={17}
                 className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -86,7 +89,7 @@ export default function Hero({ onOpenContact }: HeroProps) {
             onClick={onOpenContact}
             className="w-full sm:w-auto px-8 py-3.5 rounded-[10px] text-slate-200 font-medium text-sm tracking-wide bg-[#12192c]/90 hover:bg-[#18223c] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-sm active:scale-95 flex items-center justify-center gap-2.5 whitespace-nowrap group cursor-pointer"
           >
-            <span>PARLONS DE VOTRE PROJET</span>
+            <span>{t.hero.discussProject}</span>
             <ArrowRight
               size={16}
               className="text-slate-400 group-hover:text-white transition-all group-hover:translate-x-0.5"
@@ -104,7 +107,7 @@ export default function Hero({ onOpenContact }: HeroProps) {
 
       {/* Bottom Footer Line / Location Tag */}
       <div className="w-full max-w-5xl mx-auto pt-6 border-t border-white/[0.08] flex items-center justify-start text-[11px] text-slate-400/80 font-normal relative z-10">
-        <span>Basé en Afrique · Disponible à l&apos;international</span>
+        <span>{t.hero.tagline}</span>
       </div>
     </section>
   );

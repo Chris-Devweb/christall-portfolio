@@ -4,11 +4,26 @@ import Link from "next/link";
 import { ArrowUp, Mail, MessageCircle } from "lucide-react";
 
 import { siteConfig } from "@/data/site-config";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Footer() {
+  const { language } = useLanguage();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const navLinks = language === "fr" ? [
+    { label: "À propos", href: "#a-propos" },
+    { label: "Domaines d'intervention", href: "#expertise" },
+    { label: "Travaux sélectionnés", href: "#portfolio" },
+    { label: "Méthodologie", href: "#methodologie" },
+  ] : [
+    { label: "About", href: "#a-propos" },
+    { label: "Areas of Expertise", href: "#expertise" },
+    { label: "Selected Works", href: "#portfolio" },
+    { label: "Methodology", href: "#methodologie" },
+  ];
 
   return (
     <footer className="relative bg-[#04060d] text-slate-400 pt-14 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6 border-t border-white/[0.08]">
@@ -24,7 +39,9 @@ export default function Footer() {
               ChristΛll.
             </Link>
             <p className="text-slate-400 text-sm max-w-xs leading-relaxed mb-5 sm:mb-6">
-              Designer UI/UX & Identité Visuelle. Conception d'expériences numériques mémorables et de marques audacieuses.
+              {language === "fr"
+                ? "Designer UI/UX & Identité Visuelle. Conception d'expériences numériques mémorables et de marques audacieuses."
+                : "UI/UX & Brand Designer. Crafting memorable digital experiences and bold brand identities."}
             </p>
             {/* Social Icons */}
             <div className="flex items-center gap-2 flex-wrap">
@@ -95,12 +112,7 @@ export default function Footer() {
               <span className="text-xs font-medium uppercase tracking-wider text-slate-300 mb-1">
                 Navigation
               </span>
-              {[
-                { label: "À propos", href: "#a-propos" },
-                { label: "Domaines d'intervention", href: "#expertise" },
-                { label: "Travaux sélectionnés", href: "#portfolio" },
-                { label: "Méthodologie", href: "#methodologie" },
-              ].map((item) => (
+              {navLinks.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -118,7 +130,9 @@ export default function Footer() {
               Philosophie
             </span>
             <p className="text-base sm:text-lg font-medium text-white font-heading max-w-xs mb-3">
-              &quot;Moi c&apos;est ChristΛll. Et je fais briller tes idées.&quot;
+              {language === "fr"
+                ? '"Moi c\'est ChristΛll. Et je fais briller tes idées."'
+                : '"I\'m ChristΛll. And I bring your ideas into the light."'}
             </p>
             <span className="text-xs text-slate-400 mb-1">
               {siteConfig.email}
@@ -131,14 +145,21 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-7 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} ChristΛll. Tous droits réservés.</p>
+          <p>
+            © {new Date().getFullYear()} ChristΛll.{" "}
+            {language === "fr" ? "Tous droits réservés." : "All rights reserved."}
+          </p>
           <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
-            <span>Design & Direction Artistique par ChristΛll.</span>
+            <span>
+              {language === "fr"
+                ? "Design & Direction Artistique par ChristΛll."
+                : "Design & Art Direction by ChristΛll."}
+            </span>
             <button
               onClick={scrollToTop}
               className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
             >
-              <span>Haut de page</span>
+              <span>{language === "fr" ? "Haut de page" : "Back to top"}</span>
               <ArrowUp size={14} />
             </button>
           </div>

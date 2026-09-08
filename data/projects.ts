@@ -1,7 +1,9 @@
 import { Project } from "@/types/project";
 
 export const projectsData: Project[] = [
-  // --- UI/UX DESIGN ---
+  // ==========================================
+  // --- UI/UX DESIGN (2 PROJETS PHARES) ---
+  // ==========================================
   {
     id: "trootroo",
     title: "Trootroo",
@@ -34,6 +36,42 @@ export const projectsData: Project[] = [
     result:
       "Prototypes UI/UX finalisés et validés pour le parcours usager (en attente de déploiement en production).",
   },
+  {
+    id: "mairie-cotonou",
+    title: "Refonte du site de la Mairie de Cotonou",
+    category: "UI/UX Design",
+    categoryTab: "ui-ux",
+    year: "2024",
+    framework: "Projet académique — Mémoire",
+    image: "/images/Mairie de Cotonou.png",
+    shortDesc:
+      "Refonte UI/UX du portail web de la Mairie de Cotonou pour moderniser l'accès aux démarches et informations citoyennes.",
+    fullDesc:
+      "Ce projet consiste en une refonte UI/UX du site web de la Mairie de Cotonou. L'objectif est d'améliorer l'expérience utilisateur et la qualité de l'interface afin de rendre l'accès aux informations et services plus clair et plus intuitif. Il s'agit d'un projet académique réalisé dans le cadre de mon mémoire (recherche et conception UI/UX, sans développement).",
+    client: "Mairie de Cotonou (Cadre académique / Mémoire)",
+    deliverables: [
+      "Audit ergonomique du site municipal existant",
+      "Recherche utilisateur & cartographie des besoins citoyens",
+      "Restructuration de l'architecture de l'information",
+      "Maquettes UI haute-fidélité desktop & mobile",
+      "Dossier de mémoire & recommandations ergonomiques",
+    ],
+    context:
+      "Refonte du site web de la Mairie de Cotonou dans le cadre de mon mémoire de fin d'études.",
+    problem:
+      "Navigation dense, informations municipales difficiles à trouver et interface peu adaptée aux usages mobiles modernes.",
+    objective:
+      "Améliorer l'interface et l'expérience utilisateur pour rendre l'accès aux informations et services plus clair et intuitif.",
+    process:
+      "Évaluation heuristique, restructuration de l'arborescence, conception de wireframes puis élaboration des maquettes finales sous Figma.",
+    solution:
+      "Une interface municipale modernisée, valorisant les services clés, les actualités et un accès direct aux démarches administratives.",
+    result:
+      "Projet de conception UI/UX académique validé avec succès pour le mémoire.",
+  },
+
+  /*
+  // --- AUTRES PROJETS UI/UX (EN RÉSERVE) ---
   {
     id: "gbami",
     title: "Gbami",
@@ -129,39 +167,6 @@ export const projectsData: Project[] = [
       "Une approche équilibrée alliant fiabilité technique backend et simplicité visuelle de la marque.",
     result:
       "Socle de développement Django opérationnel avec identité visuelle finalisée (sans résultats de commercialisation inventés).",
-  },
-  {
-    id: "mairie-cotonou",
-    title: "Refonte du site de la Mairie de Cotonou",
-    category: "UI/UX Design",
-    categoryTab: "ui-ux",
-    year: "2024",
-    framework: "Projet académique — Mémoire",
-    image: "/images/Mairie de Cotonou.png",
-    shortDesc:
-      "Refonte UI/UX du portail web de la Mairie de Cotonou pour moderniser l'accès aux démarches et informations citoyennes.",
-    fullDesc:
-      "Ce projet consiste en une refonte UI/UX du site web de la Mairie de Cotonou. L'objectif est d'améliorer l'expérience utilisateur et la qualité de l'interface afin de rendre l'accès aux informations et services plus clair et plus intuitif. Il s'agit d'un projet académique réalisé dans le cadre de mon mémoire (recherche et conception UI/UX, sans développement).",
-    client: "Mairie de Cotonou (Cadre académique / Mémoire)",
-    deliverables: [
-      "Audit ergonomique du site municipal existant",
-      "Recherche utilisateur & cartographie des besoins citoyens",
-      "Restructuration de l'architecture de l'information",
-      "Maquettes UI haute-fidélité desktop & mobile",
-      "Dossier de mémoire & recommandations ergonomiques",
-    ],
-    context:
-      "Refonte du site web de la Mairie de Cotonou dans le cadre de mon mémoire de fin d'études.",
-    problem:
-      "Navigation dense, informations municipales difficiles à trouver et interface peu adaptée aux usages mobiles modernes.",
-    objective:
-      "Améliorer l'interface et l'expérience utilisateur pour rendre l'accès aux informations et services plus clair et intuitif.",
-    process:
-      "Évaluation heuristique, restructuration de l'arborescence, conception de wireframes puis élaboration des maquettes finales sous Figma.",
-    solution:
-      "Une interface municipale modernisée, valorisant les services clés, les actualités et un accès direct aux démarches administratives.",
-    result:
-      "Projet de conception UI/UX académique validé avec succès pour le mémoire.",
   },
   {
     id: "chantier",
@@ -291,8 +296,11 @@ export const projectsData: Project[] = [
     result:
       "Projet finalisé pour la présentation du hackathon.",
   },
+  */
 
-  // --- BRAND IDENTITY & BRANDING ---
+  // ===============================================
+  // --- BRAND IDENTITY (2 PROJETS PHARES) ---
+  // ===============================================
   {
     id: "brandbook-phlech",
     title: "Brandbook Phlech",
@@ -357,6 +365,9 @@ export const projectsData: Project[] = [
     result:
       "Univers visuel complet livré à la startup.",
   },
+
+  /*
+  // --- AUTRES PROJETS BRANDING (EN RÉSERVE) ---
   {
     id: "devlord-logo",
     title: "Devlord Logo",
@@ -391,7 +402,7 @@ export const projectsData: Project[] = [
   },
   {
     id: "tendo-logo",
-    title: "Tcheck Art Logo",
+    title: "Tendo Logo",
     category: "Brand Identity",
     categoryTab: "branding",
     year: "2023",
@@ -482,8 +493,11 @@ export const projectsData: Project[] = [
     result:
       "Livrables de marque finalisés.",
   },
+  */
 
-  // --- SUPPORTS DIGITAUX & DESIGN GRAPHIQUE ---
+  // ====================================================
+  // --- SUPPORTS DIGITAUX (2 PROJETS PHARES) ---
+  // ====================================================
   {
     id: "supports-kidney-savers",
     title: "Supports digitaux — Kidney Savers",
@@ -516,6 +530,40 @@ export const projectsData: Project[] = [
     result:
       "Supports utilisés lors de la présentation et du partage du projet au hackathon.",
   },
+  {
+    id: "skill-builder-flyer",
+    title: "Flyer Skill Builder",
+    category: "Supports Digitaux",
+    categoryTab: "supports",
+    year: "2023",
+    framework: "Événement & Formation",
+    image: "/images/Skill Builder Flyer.png",
+    shortDesc:
+      "Flyer promotionnel et affiche digitale pour le programme de formation Skill Builder.",
+    fullDesc:
+      "Conception de l'affiche et du flyer pour l'événement de formation Skill Builder. Structuration claire du programme, des intervenants, des compétences visées et des modalités d'inscription.",
+    client: "Skill Builder",
+    deliverables: [
+      "Flyer digital pour diffusion mobile & WhatsApp",
+      "Version haute résolution pour tirage papier",
+      "Mise en valeur de la grille d'information",
+    ],
+    context:
+      "Campagne de communication pour des sessions de formation professionnelle.",
+    problem:
+      "Présenter de nombreuses informations pédagogiques sans créer de surcharge visuelle.",
+    objective:
+      "Donner envie d'apprendre et faciliter le passage à l'action pour les inscriptions.",
+    process:
+      "Hiérarchisation par blocs thématiques, contrastes de titres et clarté des dates.",
+    solution:
+      "Un support dynamique, lisible et structuré garantissant une transmission fluide du message.",
+    result:
+      "Support diffusé sur les canaux de communication de la formation.",
+  },
+
+  /*
+  // --- AUTRES SUPPORTS DIGITAUX (EN RÉSERVE) ---
   {
     id: "banner-kidney-savers",
     title: "Bannière Officielle — Kidney Savers",
@@ -576,37 +624,6 @@ export const projectsData: Project[] = [
       "Une composition équilibrée et soignée reflétant un positionnement design exigeant.",
     result:
       "Publication réalisée et intégrée à la ligne éditoriale.",
-  },
-  {
-    id: "skill-builder-flyer",
-    title: "Flyer Skill Builder",
-    category: "Supports Digitaux",
-    categoryTab: "supports",
-    year: "2023",
-    framework: "Événement & Formation",
-    image: "/images/Skill Builder Flyer.png",
-    shortDesc:
-      "Flyer promotionnel et affiche digitale pour le programme de formation Skill Builder.",
-    fullDesc:
-      "Conception de l'affiche et du flyer pour l'événement de formation Skill Builder. Structuration claire du programme, des intervenants, des compétences visées et des modalités d'inscription.",
-    client: "Skill Builder",
-    deliverables: [
-      "Flyer digital pour diffusion mobile & WhatsApp",
-      "Version haute résolution pour tirage papier",
-      "Mise en valeur de la grille d'information",
-    ],
-    context:
-      "Campagne de communication pour des sessions de formation professionnelle.",
-    problem:
-      "Présenter de nombreuses informations pédagogiques sans créer de surcharge visuelle.",
-    objective:
-      "Donner envie d'apprendre et faciliter le passage à l'action pour les inscriptions.",
-    process:
-      "Hiérarchisation par blocs thématiques, contrastes de titres et clarté des dates.",
-    solution:
-      "Un support dynamique, lisible et structuré garantissant une transmission fluide du message.",
-    result:
-      "Support diffusé sur les canaux de communication de la formation.",
   },
   {
     id: "deos-rabbits-flyer",
@@ -791,4 +808,5 @@ export const projectsData: Project[] = [
     result:
       "Affiche largement partagée lors de la campagne de mobilisation.",
   },
+  */
 ];

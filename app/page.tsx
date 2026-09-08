@@ -17,14 +17,22 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactModalMode, setContactModalMode] = useState<ContactModalMode>("project");
+  const [selectedService, setSelectedService] = useState<string | undefined>(undefined);
 
   const handleOpenContact = (mode: ContactModalMode = "project") => {
     setContactModalMode(mode);
     setIsContactModalOpen(true);
   };
 
+  const handleSelectService = (serviceName: string) => {
+    setSelectedService(serviceName);
+    setContactModalMode("project");
+    setIsContactModalOpen(true);
+  };
+
   const handleCloseContact = () => {
     setIsContactModalOpen(false);
+    setSelectedService(undefined);
   };
 
   return (
@@ -41,7 +49,7 @@ export default function Home() {
         <About />
 
         {/* Expertise Section (Light Theme) */}
-        <Expertise />
+        <Expertise onSelectService={handleSelectService} />
 
         {/* Portfolio / Selected Works Section (Light Theme) */}
         <Portfolio onOpenContact={() => handleOpenContact("project")} />
@@ -60,6 +68,7 @@ export default function Home() {
       <ContactModal
         isOpen={isContactModalOpen}
         initialMode={contactModalMode}
+        initialService={selectedService}
         onClose={handleCloseContact}
       />
     </div>
