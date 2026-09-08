@@ -46,7 +46,7 @@ export default function About() {
           <div className="lg:col-span-6 relative group">
             <div className="relative w-full aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.08)] border border-slate-100 bg-slate-100">
               <Image
-                src="/images/about_architecture.jpg"
+                src="/images/girl mockup.png"
                 alt="Atelier ChristAll Architecture Brutaliste"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -59,7 +59,7 @@ export default function About() {
               <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 z-10">
                 <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-lg text-xs font-semibold text-slate-800">
                   <span className="w-2 h-2 rounded-full bg-[#3f519f] animate-pulse" />
-                  <span>ChristAll. • Atelier</span>
+                  <span>ChristΛll. • Un univers</span>
                 </div>
               </div>
             </div>
@@ -68,7 +68,8 @@ export default function About() {
           {/* Right Column: Bio & Metrics */}
           <div className="lg:col-span-6 flex flex-col justify-center">
             <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-7 font-normal">
-              Jeune designer passionné par l'intersection de la pureté esthétique et de l'ergonomie, j'accompagne les marques audacieuses et les institutions dans la matérialisation de leur identité.
+              Hello World ! Moi c'est ChristΛll, et je suis heureux de vous accueillir dans mon univers.
+              Celui d'un designer passionnée par l'intersection de la pureté esthétique et de l'ergonomie, j'accompagne les marques audacieuses et les institutions dans la matérialisation de leur identité.
             </p>
 
             {/* Quality Badges */}
@@ -100,7 +101,7 @@ export default function About() {
 
               <div>
                 <div className="text-4xl sm:text-5xl font-extrabold text-[#3f519f] tracking-tight font-heading mb-1">
-                  04+
+                  02+
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   ANNÉES D'EXPLORATION
