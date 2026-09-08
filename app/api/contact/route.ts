@@ -1,13 +1,89 @@
+/**
+ * API Route : POST /api/contact
+ *
+ * Parcours de traitement d'une demande entrante :
+ *   1. Vérification du Content-Type (application/json uniquement)
+ *   2. Contrôle de la taille du payload (max 15 KB)
+ *   3. Rate limiting par adresse IP (anti-spam)
+ *   4. Parsing et validation du corps JSON (Zod)
+ *   5. Piège Honeypot anti-bots
+ *   6. Enregistrement dans Supabase (table `prospects`)
+ *   7. Envoi d'une notification email via FormSubmit
+ *   8. Envoi optionnel via Resend (si RESEND_API_KEY est configuré)
+ *   9. Renvoi d'une URL WhatsApp pré-remplie au client
+ *
+ * Variables d'environnement requises :
+ *   - SUPABASE_URL          → URL de ton projet Supabase
+ *   - SUPABASE_SERVICE_KEY  → Clé service_role Supabase (serveur uniquement)
+ *   - RESEND_API_KEY        → (optionnel) clé API Resend pour backup email
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { contactFormSchema } from "@/lib/validations/contact";
 import { contactRateLimiter } from "@/lib/rate-limiter";
 import { siteConfig } from "@/data/site-config";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+
+/**
+ * Construit un objet de prospect normalisé prêt à être
+ * inséré dans la table `prospects` de Supabase.
+ */
+function buildProspectRecord(data: ReturnType<typeof contactFormSchema.parse>) {
+  const isHire = data.mode === "hire";
+  return {
+    mode: data.mode,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    message: data.message,
+    // Champs projet
+    service: !isHire ? (data.service ?? null) : null,
+    budget: !isHire ? (data.budget ?? null) : null,
+    // Champs embauche
+    company: isHire ? (data.company ?? null) : null,
+    contract_type: isHire ? (data.contractType ?? null) : null,
+    remuneration: isHire ? (data.remuneration ?? null) : null,
+    // Métadonnées
+    status: "new" as const,
+    // created_at est généré côté Supabase (DEFAULT now())
+  };
+}
+
+/**
+ * Construit le texte brut WhatsApp pour la notification manuelle.
+ */
+function buildWhatsAppText(
+  data: ReturnType<typeof contactFormSchema.parse>,
+  isHire: boolean
+): string {
+  return (
+    `Bonjour ChristΛll ! Je vous contacte depuis votre portfolio :\n\n` +
+    `📌 *Type :* ${isHire ? "Opportunité d'Embauche / Recrutement" : "Nouveau Projet"}\n` +
+    `👤 *Nom :* ${data.name}\n` +
+    `📧 *Email :* ${data.email}\n` +
+    `📞 *Téléphone :* ${data.phone}\n` +
+    (isHire && data.company ? `🏢 *Entreprise :* ${data.company}\n` : "") +
+    (isHire && data.contractType ? `📋 *Contrat :* ${data.contractType}\n` : "") +
+    (isHire && data.remuneration ? `💵 *Rémunération :* ${data.remuneration}\n` : "") +
+    (!isHire && data.service ? `🎨 *Prestation :* ${data.service}\n` : "") +
+    (!isHire && data.budget ? `💰 *Budget :* ${data.budget}\n` : "") +
+    `\n💬 *Message :*\n${data.message}`
+  );
+}
+
+// ─────────────────────────────────────────────
+// Handler principal
+// ─────────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
   try {
-    // 1. Contrôle du type de contenu
+    // ── Étape 1 : Vérification du Content-Type ──────────────────────────────
     const contentType = req.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       return NextResponse.json(
@@ -16,8 +92,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Limitation de la taille du payload (max 15 KB)
-    const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
+    // ── Étape 2 : Limite de taille du payload (max 15 KB) ───────────────────
+    const contentLength = parseInt(req.headers.get("content-length") ?? "0", 10);
     if (contentLength > 15 * 1024) {
       return NextResponse.json(
         { error: "Charge utile trop volumineuse (limite max: 15 KB)." },
@@ -25,10 +101,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Contrôle du Rate Limit par adresse IP
+    // ── Étape 3 : Rate Limiting par IP ──────────────────────────────────────
     const clientIp =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("x-real-ip") ??
       "127.0.0.1";
 
     const rateLimit = contactRateLimiter.check(clientIp);
@@ -52,7 +128,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Lecture et parsing du corps JSON
+    // ── Étape 4 : Parsing JSON ───────────────────────────────────────────────
     let rawBody: unknown;
     try {
       rawBody = await req.json();
@@ -63,7 +139,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 5. Validation de schéma avec Zod
+    // ── Étape 5 : Validation Zod ─────────────────────────────────────────────
     const validationResult = contactFormSchema.safeParse(rawBody);
 
     if (!validationResult.success) {
@@ -76,48 +152,53 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json(
-        {
-          error: "Certains champs sont invalides.",
-          details: fieldErrors,
-        },
+        { error: "Certains champs sont invalides.", details: fieldErrors },
         { status: 400 }
       );
     }
 
     const data = validationResult.data;
 
-    // 6. Piège Honeypot anti-bots
+    // ── Étape 6 : Piège Honeypot anti-bots ──────────────────────────────────
+    // Si le champ caché `website_hp` est rempli, c'est un bot → réponse leurre.
     if (data.website_hp && data.website_hp.length > 0) {
-      return NextResponse.json({
-        success: true,
-        message: "Demande reçue.",
-      });
+      return NextResponse.json({ success: true, message: "Demande reçue." });
     }
 
-    const isHireMode = data.mode === "hire";
-    const subject = isHireMode
+    const isHire = data.mode === "hire";
+    const subject = isHire
       ? `💼 [RECRUTEMENT] Proposition d'embauche de ${data.name}`
       : `🚀 [PROJET] Nouvelle demande de prestation de ${data.name}`;
 
-    // 7. Formatage structuré pour WhatsApp (+229 94 34 80 96)
-    const rawWhatsAppText =
-      `Bonjour ChristΛll ! Je vous contacte depuis votre portfolio :\n\n` +
-      `📌 *Type :* ${isHireMode ? "Opportunité d'Embauche / Recrutement" : "Nouveau Projet"}\n` +
-      `👤 *Nom :* ${data.name}\n` +
-      `📧 *Email :* ${data.email}\n` +
-      `📞 *Téléphone :* ${data.phone}\n` +
-      (isHireMode && data.company ? `🏢 *Entreprise :* ${data.company}\n` : "") +
-      (isHireMode && data.contractType ? `📋 *Contrat :* ${data.contractType}\n` : "") +
-      (isHireMode && data.remuneration ? `💵 *Rémunération :* ${data.remuneration}\n` : "") +
-      (!isHireMode && data.service ? `🎨 *Prestation :* ${data.service}\n` : "") +
-      (!isHireMode && data.budget ? `💰 *Budget :* ${data.budget}\n` : "") +
-      `\n💬 *Message :*\n${data.message}`;
+    // ── Étape 7 : Enregistrement dans Supabase ───────────────────────────────
+    // On insère le prospect AVANT l'envoi email.
+    // En cas d'échec Supabase, on logue l'erreur mais on continue
+    // pour ne pas bloquer la notification email (fail-soft).
+    let prospectId: string | null = null;
+    try {
+      const { data: insertedRow, error: supabaseError } = await supabaseAdmin
+        .from("prospects")
+        .insert(buildProspectRecord(data))
+        .select("id")
+        .single();
 
+      if (supabaseError) {
+        // Non-bloquant : l'email part quand même
+        console.error("[Supabase Insert Error]:", supabaseError.message);
+      } else {
+        prospectId = insertedRow?.id ?? null;
+        console.info(`[Supabase] Prospect enregistré avec l'ID : ${prospectId}`);
+      }
+    } catch (err) {
+      console.error("[Supabase Unexpected Error]:", err);
+    }
+
+    // ── Étape 8 : Génération de l'URL WhatsApp ───────────────────────────────
+    const whatsAppText = buildWhatsAppText(data, isHire);
     const targetPhoneDigits = siteConfig.phone.replace(/[^0-9]/g, "");
-    const generatedWhatsAppUrl = `https://wa.me/${targetPhoneDigits}?text=${encodeURIComponent(rawWhatsAppText)}`;
+    const whatsappUrl = `https://wa.me/${targetPhoneDigits}?text=${encodeURIComponent(whatsAppText)}`;
 
-    // 8. Envoi automatique de l'email vers cossouchristall@gmail.com
-    // Tentative 1 : FormSubmit AJAX direct vers cossouchristall@gmail.com
+    // ── Étape 9 : Notification email via FormSubmit ──────────────────────────
     try {
       await fetch(`https://formsubmit.co/ajax/${siteConfig.email}`, {
         method: "POST",
@@ -129,30 +210,34 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           _subject: subject,
           _template: "table",
-          "Type de demande": isHireMode ? "Opportunité d'embauche" : "Nouveau projet",
+          "Type de demande": isHire ? "Opportunité d'embauche" : "Nouveau projet",
           Nom: data.name,
           Email: data.email,
-          "Téléphone": data.phone,
-          ...(isHireMode
+          Téléphone: data.phone,
+          ...(isHire
             ? {
-                Entreprise: data.company || "Non précisée",
-                "Type de contrat": data.contractType || "À définir",
-                Rémunération: data.remuneration || "À définir",
+                Entreprise: data.company ?? "Non précisée",
+                "Type de contrat": data.contractType ?? "À définir",
+                Rémunération: data.remuneration ?? "À définir",
               }
             : {
-                Prestation: data.service || "Général",
-                Budget: data.budget || "Non précisé",
+                Prestation: data.service ?? "Général",
+                Budget: data.budget ?? "Non précisé",
               }),
           Message: data.message,
-          Date: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Porto-Novo" }),
+          "ID Prospect": prospectId ?? "Non enregistré",
+          Date: new Date().toLocaleString("fr-FR", {
+            timeZone: "Africa/Porto-Novo",
+          }),
         }),
       });
-      console.info(`[Email Service] Notification expédiée vers ${siteConfig.email}`);
+      console.info(`[FormSubmit] Email envoyé à ${siteConfig.email}`);
     } catch (err) {
       console.warn("[FormSubmit Error]:", err);
     }
 
-    // Tentative 2 : Si la clé RESEND_API_KEY est configurée
+    // ── Étape 10 : Backup email via Resend (optionnel) ───────────────────────
+    // Activé uniquement si la variable RESEND_API_KEY est définie dans l'env.
     if (process.env.RESEND_API_KEY) {
       try {
         await fetch("https://api.resend.com/emails", {
@@ -165,8 +250,8 @@ export async function POST(req: NextRequest) {
             from: "Portfolio Christall <onboarding@resend.dev>",
             to: [siteConfig.email],
             reply_to: data.email,
-            subject: subject,
-            text: rawWhatsAppText,
+            subject,
+            text: whatsAppText,
           }),
         });
       } catch (err) {
@@ -174,13 +259,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ── Réponse finale ───────────────────────────────────────────────────────
     return NextResponse.json(
       {
         success: true,
-        message: isHireMode
-          ? "Votre proposition d'embauche a été transmise avec succès par email et préparée pour WhatsApp !"
-          : "Votre demande de projet a été transmise avec succès par email et préparée pour WhatsApp !",
-        whatsappUrl: generatedWhatsAppUrl,
+        message: isHire
+          ? "Votre proposition d'embauche a été transmise avec succès !"
+          : "Votre demande de projet a été transmise avec succès !",
+        whatsappUrl,
       },
       {
         status: 200,
