@@ -200,38 +200,52 @@ export async function POST(req: NextRequest) {
 
     // ── Étape 9 : Notification email via FormSubmit ──────────────────────────
     try {
-      await fetch(`https://formsubmit.co/ajax/${siteConfig.email}`, {
+      const formSubmitPayload = {
+        _subject: subject,
+        _template: "table",
+        _captcha: "false",
+        "Type de demande": isHire ? "Opportunité d'embauche" : "Nouveau projet",
+        Nom: data.name,
+        Email: data.email,
+        Téléphone: data.phone,
+        ...(isHire
+          ? {
+              Entreprise: data.company ?? "Non précisée",
+              "Type de contrat": data.contractType ?? "À définir",
+              Rémunération: data.remuneration ?? "À définir",
+            }
+          : {
+              Prestation: data.service ?? "Général",
+              Budget: data.budget ?? "Non précisé",
+            }),
+        Message: data.message,
+        "ID Prospect": prospectId ?? "Non enregistré",
+        Date: new Date().toLocaleString("fr-FR", {
+          timeZone: "Africa/Porto-Novo",
+        }),
+      };
+
+      console.info("[FormSubmit] Envoi du payload :", JSON.stringify(formSubmitPayload));
+
+      const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${siteConfig.email}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Referer: siteConfig.url,
         },
-        body: JSON.stringify({
-          _subject: subject,
-          _template: "table",
-          "Type de demande": isHire ? "Opportunité d'embauche" : "Nouveau projet",
-          Nom: data.name,
-          Email: data.email,
-          Téléphone: data.phone,
-          ...(isHire
-            ? {
-                Entreprise: data.company ?? "Non précisée",
-                "Type de contrat": data.contractType ?? "À définir",
-                Rémunération: data.remuneration ?? "À définir",
-              }
-            : {
-                Prestation: data.service ?? "Général",
-                Budget: data.budget ?? "Non précisé",
-              }),
-          Message: data.message,
-          "ID Prospect": prospectId ?? "Non enregistré",
-          Date: new Date().toLocaleString("fr-FR", {
-            timeZone: "Africa/Porto-Novo",
-          }),
-        }),
+        body: JSON.stringify(formSubmitPayload),
       });
-      console.info(`[FormSubmit] Email envoyé à ${siteConfig.email}`);
+
+      const formSubmitBody = await formSubmitRes.text();
+      console.info(
+        `[FormSubmit] Status: ${formSubmitRes.status} | Response: ${formSubmitBody}`
+      );
+
+      if (!formSubmitRes.ok) {
+        console.warn(
+          `[FormSubmit] ⚠️ Échec HTTP ${formSubmitRes.status} pour ${siteConfig.email}`
+        );
+      }
     } catch (err) {
       console.warn("[FormSubmit Error]:", err);
     }

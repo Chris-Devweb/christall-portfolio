@@ -52,17 +52,21 @@ export default function ContactModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Synchronisation lors de l'ouverture
+  // Synchronisation lors de l'ouverture — force toujours le mode actif
   useEffect(() => {
     if (isOpen) {
-      setMode(initialMode);
+      // Toujours forcer le mode, même si initialMode n'a pas changé
+      setMode(initialMode ?? "project");
       setErrorMessage(null);
       setFieldErrors({});
+      setIsSubmitted(false);
+      setWhatsappForwardUrl(null);
       if (initialService) {
         setFormData((prev) => ({ ...prev, service: initialService }));
       }
     }
-  }, [isOpen, initialMode, initialService]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
