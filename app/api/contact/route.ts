@@ -198,79 +198,39 @@ export async function POST(req: NextRequest) {
     const targetPhoneDigits = siteConfig.phone.replace(/[^0-9]/g, "");
     const whatsappUrl = `https://wa.me/${targetPhoneDigits}?text=${encodeURIComponent(whatsAppText)}`;
 
-    // ── Étape 9 : Notification email via FormSubmit ──────────────────────────
+    // ── Étape 9 : Notification email via FormSubmit (DÉSACTIVÉ en prod) ────
+    // FormSubmit ne fonctionne pas depuis un serveur backend.
+    // On passe directement à Resend.
+    console.info("[FormSubmit] Désactivé - utilisation de Resend à la place.");
+
+    // ── Étape 10 : Email via Resend (PRINCIPAL) ─────────────────────────────
     try {
-      const formSubmitPayload = {
-        _subject: subject,
-        _template: "table",
-        _captcha: "false",
-        "Type de demande": isHire ? "Opportunité d'embauche" : "Nouveau projet",
-        Nom: data.name,
-        Email: data.email,
-        Téléphone: data.phone,
-        ...(isHire
-          ? {
-              Entreprise: data.company ?? "Non précisée",
-              "Type de contrat": data.contractType ?? "À définir",
-              Rémunération: data.remuneration ?? "À définir",
-            }
-          : {
-              Prestation: data.service ?? "Général",
-              Budget: data.budget ?? "Non précisé",
-            }),
-        Message: data.message,
-        "ID Prospect": prospectId ?? "Non enregistré",
-        Date: new Date().toLocaleString("fr-FR", {
-          timeZone: "Africa/Porto-Novo",
-        }),
-      };
+      console.info("[Resend] Tentative d'envoi vers:", siteConfig.email);
 
-      console.info("[FormSubmit] Envoi du payload :", JSON.stringify(formSubmitPayload));
-
-      const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${siteConfig.email}`, {
+      const resendRes = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
-        body: JSON.stringify(formSubmitPayload),
+        body: JSON.stringify({
+          from: "Portfolio Christall <onboarding@resend.dev>",
+          to: [siteConfig.email],
+          reply_to: data.email,
+          subject: subject,
+          text: whatsAppText,
+        }),
       });
 
-      const formSubmitBody = await formSubmitRes.text();
-      console.info(
-        `[FormSubmit] Status: ${formSubmitRes.status} | Response: ${formSubmitBody}`
-      );
+      const resendBody = await resendRes.text();
+      console.info(`[Resend] Status: ${resendRes.status} | Response: ${resendBody}`);
 
-      if (!formSubmitRes.ok) {
-        console.warn(
-          `[FormSubmit] ⚠️ Échec HTTP ${formSubmitRes.status} pour ${siteConfig.email}`
-        );
+      if (!resendRes.ok) {
+        console.warn(`[Resend] ⚠️ Échec HTTP ${resendRes.status}`);
+        console.warn(`[Resend] Détails: ${resendBody}`);
       }
     } catch (err) {
-      console.warn("[FormSubmit Error]:", err);
-    }
-
-    // ── Étape 10 : Backup email via Resend (optionnel) ───────────────────────
-    // Activé uniquement si la variable RESEND_API_KEY est définie dans l'env.
-    if (process.env.RESEND_API_KEY) {
-      try {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "Portfolio Christall <onboarding@resend.dev>",
-            to: [siteConfig.email],
-            reply_to: data.email,
-            subject,
-            text: whatsAppText,
-          }),
-        });
-      } catch (err) {
-        console.warn("[Resend Error]:", err);
-      }
+      console.warn("[Resend Error]:", err);
     }
 
     // ── Réponse finale ───────────────────────────────────────────────────────
