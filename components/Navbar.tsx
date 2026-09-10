@@ -53,22 +53,20 @@ export default function Navbar({ onOpenContact }: NavbarProps) {
           <div className="flex items-center p-1 rounded-full bg-white/[0.06] border border-white/10 text-xs">
             <button
               onClick={() => setLanguage("fr")}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                language === "fr"
+              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${language === "fr"
                   ? "bg-white text-[#0a1020] font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
               aria-label="Passer en Français"
             >
               FR
             </button>
             <button
               onClick={() => setLanguage("en")}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                language === "en"
+              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${language === "en"
                   ? "bg-white text-[#0a1020] font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
               aria-label="Switch to English"
             >
               EN
@@ -89,21 +87,19 @@ export default function Navbar({ onOpenContact }: NavbarProps) {
           <div className="flex items-center p-0.5 rounded-full bg-white/[0.06] border border-white/10 text-[11px]">
             <button
               onClick={() => setLanguage("fr")}
-              className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                language === "fr"
+              className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${language === "fr"
                   ? "bg-white text-[#0a1020] font-bold"
                   : "text-slate-400"
-              }`}
+                }`}
             >
               FR
             </button>
             <button
               onClick={() => setLanguage("en")}
-              className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                language === "en"
+              className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${language === "en"
                   ? "bg-white text-[#0a1020] font-bold"
                   : "text-slate-400"
-              }`}
+                }`}
             >
               EN
             </button>
